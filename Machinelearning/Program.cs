@@ -58,26 +58,19 @@ var pipeline = mlContext.Forecasting.ForecastBySsa(
     windowSize: 10,       // antal tidligere punkter at kigge på
     seriesLength: 30,    // længde af serien
     trainSize: data.Count,
-    horizon: 5 // hvor mange fremtidige punkter du vil forudsige
+    horizon: 10 // hvor mange fremtidige punkter du vil forudsige
+
     );         
 
 var model = pipeline.Fit(dataView);
 
 // Lav forudsigelse
 var forecastEngine = model.CreateTimeSeriesEngine<PriceData, PriceForecast>(mlContext);
-
-var nums = new List<int>(){ 510,500};
-
-foreach (var item in nums)
-{
-    forecastEngine.Predict(item);
-}
-
 var forecast = forecastEngine.Predict();
 
 Console.WriteLine("Forudsagte priser:");
 foreach (var p in forecast.ForecastedPrice)
-    Console.WriteLine(p);
+    Console.WriteLine($"trin: {p:0.00}");
 
 
 public class PriceData
