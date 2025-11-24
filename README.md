@@ -20,7 +20,7 @@ Legend: 📁 Folder • 🧩 C#-Code • ⚙️ config/json/yaml • 🪪 .sln/.
         🧩 Price.cs
         🧩 PriceHistory.cs
         🧩 User.cs
-        📁 ValueObjects
+        📁 Value
           🧩 Money.cs
           🧩 ProductId.cs
         📁 Interfaces
@@ -59,11 +59,11 @@ Legend: 📁 Folder • 🧩 C#-Code • ⚙️ config/json/yaml • 🪪 .sln/.
 
       📁 Api                       ← Web API lag
         🧩 Program.cs              (DI, pipeline, routing, Swagger)
-        📁 Controllers
-          🧩 ProductsController.cs
-          🧩 ShopsController.cs
-          🧩 PricesController.cs
-          🧩 AuthController.cs
+        📁 Endpoints
+          🧩 ProductEndpoint.cs
+          🧩 ShopEndpoint.cs
+          🧩 PriceEndpoint.cs
+          🧩 AuthEndpoint.cs
         📁 Filters
           🧩 ApiExceptionFilter.cs
         📁 Models                  ← request/response-modeller
@@ -71,7 +71,7 @@ Legend: 📁 Folder • 🧩 C#-Code • ⚙️ config/json/yaml • 🪪 .sln/.
           🧩 UpdateProductRequest.cs
 
       📁 Crawler (extra)
-        🧩 PriceCrawlerHostedService.cs  (IHostedService background job)
+        🧩 PriceCrawlerService.cs  (IHostedService background job)
         📁 Providers
           🧩 IShopCrawler.cs            (interface)
           🧩 ExampleShopCrawler.cs      (konkret implementation)
@@ -143,296 +143,260 @@ Opgave 2: Pricerunner
 
 ```
 
-```text
-2-ugers plan (10 arbejdsdage)
+```
+---
+
+## 2-ugers plan (10 arbejdsdage)
 
 Antag: du har ca. to uger med nogenlunde fulde dage. Målet er:
-MVP færdig i slut uge 1, uge 2 = polish + ekstra features + dokumentation + øve præsentation.
+**MVP færdig i slut uge 1**, uge 2 = polish + ekstra features + dokumentation + øve præsentation.
 
-Dag 1 – Scope, domain & skeleton
+### Dag 1 – Scope, domain & skeleton
 
-Vælg præcist scope:
+* Vælg præcist scope:
 
-Hvilke entiteter? (Product, Shop, Price, PriceHistory, User).
+  * Hvilke entiteter? (Product, Shop, Price, PriceHistory, User).
+  * Hvad skal frontend *helt sikkert* kunne? (Liste → detaljer → watchlist/kurv).
+* Lav overordnet **use cases-list**:
 
-Hvad skal frontend helt sikkert kunne? (Liste → detaljer → watchlist/kurv).
+  * “Se alle produkter”, “Se billigste pris”, “Admin opret produkt”, osv.
+* Opret:
 
-Lav overordnet use cases-list:
+  * GitHub repo + basic README.
+  * `.sln` + backend Web API-projekt + React-frontend-projekt.
+* Læg lag-strukturen (mapper + tomme projekter / namespaces).
 
-“Se alle produkter”, “Se billigste pris”, “Admin opret produkt”, osv.
+*Milepæl*: Solution bygger, tomme /health-endpoint svarer.
 
-Opret:
+---
 
-GitHub repo + basic README.
+### Dag 2 – Database & Domain
 
-.sln + backend Web API-projekt + React-frontend-projekt.
+* Design **ER-diagram** for MS-SQL og læg det i `docs/ER-DIAGRAM.md`.
+* Opret `Domain`-entiteter:
 
-Læg lag-strukturen (mapper + tomme projekter / namespaces).
+  * `Product`, `Shop`, `Price`, `PriceHistory`.
+* Opret `AppDbContext` + EF-konfigurationer.
+* Lav første migration og kør mod lokal SQL.
+* Lav `SeedData` med dummy produkter/shops/priser.
 
-Milepæl: Solution bygger, tomme /health-endpoint svarer.
+*Milepæl*: DB oprettes, seede data findes, du kan køre `SELECT * FROM Products`.
 
-Dag 2 – Database & Domain
+---
 
-Design ER-diagram for MS-SQL og læg det i docs/ER-DIAGRAM.md.
+### Dag 3 – Application-lag & Repositories
 
-Opret Domain-entiteter:
+* Opret interface-baserede repos (`IProductRepository`, `IShopRepository`).
+* Implementer EF-baserede repos i `Infrastructure`.
+* Opret `ProductService` og `PriceService` i `Application`:
 
-Product, Shop, Price, PriceHistory.
+  * GetAllProducts (inkl. billigste pris).
+  * GetProductDetail (inkl. alle shops + price history stub).
+* Start på unit tests for Domain (fx pris-beregninger / small business rules).
 
-Opret AppDbContext + EF-konfigurationer.
+*Milepæl*: Services kan kaldes fra integrationstest eller midlertidig console app.
 
-Lav første migration og kør mod lokal SQL.
+---
 
-Lav SeedData med dummy produkter/shops/priser.
+### Dag 4 – API design & første endpoints
 
-Milepæl: DB oprettes, seede data findes, du kan køre SELECT * FROM Products.
+* Lav DTO’er & request models.
+* Implementer controllers:
 
-Dag 3 – Application-lag & Repositories
+  * `GET /api/products`
+  * `GET /api/products/{id}`
+  * `POST /api/products` (admin)
+  * `PUT /api/products/{id}` (admin)
+* Tilføj:
 
-Opret interface-baserede repos (IProductRepository, IShopRepository).
+  * Swagger.
+  * Exception filter.
+  * Simple model validation.
 
-Implementer EF-baserede repos i Infrastructure.
+*Milepæl*: Du kan teste endpoints i Swagger/Postman med rigtig data.
 
-Opret ProductService og PriceService i Application:
+---
 
-GetAllProducts (inkl. billigste pris).
+### Dag 5 – Frontend MVP (vertical slice)
 
-GetProductDetail (inkl. alle shops + price history stub).
+* Spin React/Vite op, lav:
 
-Start på unit tests for Domain (fx pris-beregninger / small business rules).
+  * `ProductsPage` med tabel/grid over produkter.
+  * `ProductCard` med navn, billede, billigste pris.
+* Implementer `productsApi.ts` til at kalde API.
+* Simpel routing (React Router) mellem `/products` og `/products/:id`.
+* Lav `ProductDetailPage` der viser alle shops og highlight billigste.
 
-Milepæl: Services kan kaldes fra integrationstest eller midlertidig console app.
-
-Dag 4 – API design & første endpoints
-
-Lav DTO’er & request models.
-
-Implementer controllers:
-
-GET /api/products
-
-GET /api/products/{id}
-
-POST /api/products (admin)
-
-PUT /api/products/{id} (admin)
-
-Tilføj:
-
-Swagger.
-
-Exception filter.
-
-Simple model validation.
-
-Milepæl: Du kan teste endpoints i Swagger/Postman med rigtig data.
-
-Dag 5 – Frontend MVP (vertical slice)
-
-Spin React/Vite op, lav:
-
-ProductsPage med tabel/grid over produkter.
-
-ProductCard med navn, billede, billigste pris.
-
-Implementer productsApi.ts til at kalde API.
-
-Simpel routing (React Router) mellem /products og /products/:id.
-
-Lav ProductDetailPage der viser alle shops og highlight billigste.
-
-_Milepæl (uge 1 slut):
+_Milepæl (uge 1 slut)**:**
 Fra browseren kan du:
 
-Se produktliste (live fra DB gennem API).
+* Se produktliste (live fra DB gennem API).
+* Klikke på et produkt og se detaljer/priser.
 
-Klikke på et produkt og se detaljer/priser.
+---
 
-Dag 6 – Watchlist/kurv + mere test
+### Dag 6 – Watchlist/kurv + mere test
 
-Implementer CartContext eller “watchlist”:
+* Implementer `CartContext` eller “watchlist”:
 
-Knappen “Add to watchlist”.
+  * Knappen “Add to watchlist”.
+  * `/cart` side der viser valgte produkter.
+* Beslut: gem watchlist lokalt (localStorage) eller i backend (MVP: lokalt).
+* Tilføj flere unit tests:
 
-/cart side der viser valgte produkter.
+  * `ProductService` og `PriceService` logik.
+* Start 1–2 integrationstests for API (happy-path GET/POST).
 
-Beslut: gem watchlist lokalt (localStorage) eller i backend (MVP: lokalt).
+*Milepæl*: Basic UX rundt i app’en føles nogenlunde komplet.
 
-Tilføj flere unit tests:
+---
 
-ProductService og PriceService logik.
+### Dag 7 – Autentifikation + admin
 
-Start 1–2 integrationstests for API (happy-path GET/POST).
+* Tilføj simple brugere:
 
-Milepæl: Basic UX rundt i app’en føles nogenlunde komplet.
+  * Fx “admin” med hardcodet seed eller in-memory.
+* Implementer JWT-baseret auth:
 
-Dag 7 – Autentifikation + admin
+  * `POST /auth/login` → bearer token.
+* Beskyt admin-endpoints (POST/PUT/DELETE på produkter/shops).
+* Frontend:
 
-Tilføj simple brugere:
+  * `LoginPage` + `AuthContext`.
+  * Admin-side til CRUD på produkter (kald auth-beskyttet API).
 
-Fx “admin” med hardcodet seed eller in-memory.
+*Milepæl*: Kun admin kan oprette/ændre produkter; resten kun læse.
 
-Implementer JWT-baseret auth:
+---
 
-POST /auth/login → bearer token.
+### Dag 8 – Docker, Grafana & CI
 
-Beskyt admin-endpoints (POST/PUT/DELETE på produkter/shops).
+* Lav `Dockerfile.backend` og `Dockerfile.frontend`.
+* Lav `docker-compose.yml` med:
 
-Frontend:
+  * `api`, `sqlserver`, `frontend`, evt. `grafana`.
+* Konfigurer Grafana til at læse fra SQL:
 
-LoginPage + AuthContext.
+  * Lav mindst ét dashboard med:
 
-Admin-side til CRUD på produkter (kald auth-beskyttet API).
+    * Gennemsnitlig pris pr. shop.
+    * Antal produkter pr. kategori.
+* GitHub Actions workflow:
 
-Milepæl: Kun admin kan oprette/ændre produkter; resten kun læse.
+  * `dotnet restore/build/test`.
+  * `npm install/test/build` for frontend.
+  * Evt. docker build (behøver ikke push).
 
-Dag 8 – Docker, Grafana & CI
+*Milepæl*: Med én kommando (`docker-compose up`) kører hele systemet lokalt.
 
-Lav Dockerfile.backend og Dockerfile.frontend.
+---
 
-Lav docker-compose.yml med:
+### Dag 9 – Dokumentation & UML
 
-api, sqlserver, frontend, evt. grafana.
+* Udfyld `README.md`:
 
-Konfigurer Grafana til at læse fra SQL:
+  * Kort intro, teknologi-stack.
+  * Installationsvejledning (lokalt + Docker).
+  * Hvordan køre tests.
+* Udfyld `ARCHITECTURE.md`:
 
-Lav mindst ét dashboard med:
+  * Lagdiagram (Domain / Application / Infrastructure / Api / Frontend).
+  * Kort begrundelse for valg (SOLID, interfaces, EF Core, React).
+* Lav UML:
 
-Gennemsnitlig pris pr. shop.
+  * Klassediagram for Domain (Product/Shop/Price).
+  * Sekvensdiagram for “User åbner ProductDetailPage”.
 
-Antal produkter pr. kategori.
+*Milepæl*: Repo’et ligner noget, en ekstern rekrutterer kan forstå uden at kende projektet.
 
-GitHub Actions workflow:
+---
 
-dotnet restore/build/test.
+### Dag 10 – Polishing, slides & ekstra features
 
-npm install/test/build for frontend.
+* Ryd op i:
 
-Evt. docker build (behøver ikke push).
+  * Døde klasser/filer.
+  * Navngivning, magic strings, kommentarer.
+* Forbered præsentation (15 min):
 
-Milepæl: Med én kommando (docker-compose up) kører hele systemet lokalt.
+  * 3–4 slides om arkitektur & designvalg.
+  * 1–2 slides om tests/CI/Docker.
+  * 1–2 slides demo-flow (hvad du viser live).
+* Hvis du har tid:
 
-Dag 9 – Dokumentation & UML
+  * Lidt mere test.
+  * Evt. begynde på crawler (se næste afsnit).
 
-Udfyld README.md:
+*Milepæl*: Alt kører stabilt; du kan køre demo 2–3 gange uden overraskelser.
 
-Kort intro, teknologi-stack.
+---
 
-Installationsvejledning (lokalt + Docker).
+## 3. Ekstra: Webcrawler til automatiske priser
 
-Hvordan køre tests.
+Det her er **perfekt som “stretch goal” / ekstra slide**.
+Du behøver ikke 120% færdig crawler – det er nok at vise en **klar arkitektur + en simpel implementation**, fx mod en dummy-shop.
 
-Udfyld ARCHITECTURE.md:
+### Arkitektur-idé
 
-Lagdiagram (Domain / Application / Infrastructure / Api / Frontend).
+* Du har i forvejen:
 
-Kort begrundelse for valg (SOLID, interfaces, EF Core, React).
+  * `Shop` entitet.
+  * `Product` + evt. `ExternalProductId` / `ShopProductUrl`.
 
-Lav UML:
+* Tilføj:
 
-Klassediagram for Domain (Product/Shop/Price).
+  * Interface `IShopCrawler` i `Crawler/Providers`.
+  * Implementering `ExampleShopCrawler` der:
 
-Sekvensdiagram for “User åbner ProductDetailPage”.
+    * Kender HTML-strukturen for “shoppen”.
+    * Henter HTML med `HttpClient`.
+    * Parser pris med fx HtmlAgilityPack (eller regex som MVP).
+  * `PriceCrawlerHostedService` (implementerer `IHostedService`), der:
 
-Milepæl: Repo’et ligner noget, en ekstern rekrutterer kan forstå uden at kende projektet.
+    * Kører fx hver time / ved opstart.
+    * Går alle Shops igennem og kalder deres crawler.
+    * Opdaterer `Price` og `PriceHistory` via `PriceService`.
 
-Dag 10 – Polishing, slides & ekstra features
+* Evt. endpoint:
 
-Ryd op i:
+  * `POST /admin/crawler/runOnce` som admin kan klikke på i frontend:
 
-Døde klasser/filer.
+    * Trigger et “run crawl nu” uden at du skal lave kompleks scheduling.
 
-Navngivning, magic strings, kommentarer.
+### Hvor i planen?
 
-Forbered præsentation (15 min):
+* **Minimum**: design + skelet kan laves på **Dag 8–10**, når MVP er solid.
+* Start med *én* fake shop:
 
-3–4 slides om arkitektur & designvalg.
+  * Læg en lokal HTML-fil med kendt struktur.
+  * Lad crawleren hente fra `file://` eller en lille testserver.
+  * Så slipper du for at bøvle med rigtige websites / robots.txt osv.
 
-1–2 slides om tests/CI/Docker.
-
-1–2 slides demo-flow (hvad du viser live).
-
-Hvis du har tid:
-
-Lidt mere test.
-
-Evt. begynde på crawler (se næste afsnit).
-
-Milepæl: Alt kører stabilt; du kan køre demo 2–3 gange uden overraskelser.
-
-3. Ekstra: Webcrawler til automatiske priser
-
-Det her er perfekt som “stretch goal” / ekstra slide.
-Du behøver ikke 120% færdig crawler – det er nok at vise en klar arkitektur + en simpel implementation, fx mod en dummy-shop.
-
-Arkitektur-idé
-
-Du har i forvejen:
-
-Shop entitet.
-
-Product + evt. ExternalProductId / ShopProductUrl.
-
-Tilføj:
-
-Interface IShopCrawler i Crawler/Providers.
-
-Implementering ExampleShopCrawler der:
-
-Kender HTML-strukturen for “shoppen”.
-
-Henter HTML med HttpClient.
-
-Parser pris med fx HtmlAgilityPack (eller regex som MVP).
-
-PriceCrawlerHostedService (implementerer IHostedService), der:
-
-Kører fx hver time / ved opstart.
-
-Går alle Shops igennem og kalder deres crawler.
-
-Opdaterer Price og PriceHistory via PriceService.
-
-Evt. endpoint:
-
-POST /admin/crawler/runOnce som admin kan klikke på i frontend:
-
-Trigger et “run crawl nu” uden at du skal lave kompleks scheduling.
-
-Hvor i planen?
-
-Minimum: design + skelet kan laves på Dag 8–10, når MVP er solid.
-
-Start med én fake shop:
-
-Læg en lokal HTML-fil med kendt struktur.
-
-Lad crawleren hente fra file:// eller en lille testserver.
-
-Så slipper du for at bøvle med rigtige websites / robots.txt osv```
+---
+```
 
 
 ```mermaid
 flowchart LR
-    subgraph UserSide[Bruger]
-        U[Browser / React Frontend]
+    subgraph UserSide["User side"]
+        U["Browser / React frontend"]
     end
 
-    subgraph Backend[Backend (.NET C# API)]
-        AP[API Layer (Controllers)]
-        APP[Application Layer (Services, DTOs, Mappers)]
-        DOM[Domain Layer (Entities, Value Objects, Interfaces)]
-        INF[Infrastructure Layer (EF Core, Repositories)]
+    subgraph Backend["Backend - .NET 9 API"]
+        AP["API layer\n(Controllers)"]
+        APP["Application layer\n(Services, DTOs, Mappers)"]
+        DOM["Domain layer\n(Entities,\nValue objects,\nInterfaces)"]
+        INF["Infrastructure layer\n(EF Core, Repositories)"]
     end
 
-    subgraph DB[Database & Monitoring]
-        SQL[(MS-SQL Database)]
-        GRAF[Grafana (Dashboards)]
+    subgraph DB["Database & monitoring"]
+        SQL["MS-SQL database"]
+        GRAF["Grafana\n(Dashboards)"]
     end
 
-    subgraph Extra[Ekstra komponenter]
-        CRAWLER[Price Crawler (IHostedService)]
-        TESTS[Tests (Unit + Integration)]
+    subgraph Extra["Extra components"]
+        CRAWLER["Price crawler\n(IHostedService)"]
+        TESTS["Tests\n(Unit + Integration)"]
     end
 
     U -->|"HTTP (REST, JSON)"| AP
@@ -449,33 +413,34 @@ flowchart LR
     TESTS --> AP
     TESTS --> APP
     TESTS --> DOM
+
 ```
 
 ```mermaid
 flowchart TB
-    subgraph API[API Layer]
-        CTRL[Controllers (Products, Shops, Prices, Auth)]
-        FILT[Exception Filters + Validation]
+    subgraph API["API Layer"]
+        CTRL["Controllers\n(Products, Shops, Prices, Auth)"]
+        FILT["Exception filters\n+ Validation"]
     end
 
-    subgraph APP[Application Layer]
-        SRV[Services (ProductService, PriceService, AuthService)]
-        DTO[DTOs (ProductDto, ProductDetailDto, ShopDto)]
-        MAP[Mappers (ProductMapper)]
-        VAL[Validation (ProductValidator)]
+    subgraph APP["Application Layer"]
+        SRV["Services\n(ProductService, PriceService, AuthService)"]
+        DTO["DTOs\n(ProductDto, ProductDetailDto, ShopDto)"]
+        MAP["Mappers\n(ProductMapper)"]
+        VAL["Validation\n(ProductValidator)"]
     end
 
-    subgraph DOM[Domain Layer]
-        ENT[Entities (Product, Shop, Price, PriceHistory, User)]
-        VO[Value Objects (Money, ProductId)]
-        INTF[Interfaces (IProductRepository,  IShopRepository,  IPriceService)]
+    subgraph DOM["Domain Layer"]
+        ENT["Entities\n(Product, Shop, Price, PriceHistory, User)"]
+        VO["Value objects\n(Money, ProductId)"]
+        INTF["Interfaces\n(IProductRepository,\n IShopRepository,\n IPriceService)"]
     end
 
-    subgraph INF[Infrastructure Layer]
-        DBCTX[AppDbContext (EF Core)]
-        REPO[Repositories (ProductRepository,  ShopRepository)]
-        MIG[Migrations]
-        SEED[SeedData]
+    subgraph INF["Infrastructure Layer"]
+        DBCTX["AppDbContext\n(EF Core)"]
+        REPO["Repositories\n(ProductRepository,\n ShopRepository)"]
+        MIG["Migrations"]
+        SEED["SeedData"]
     end
 
     CTRL --> SRV
@@ -485,8 +450,8 @@ flowchart TB
     INTF --> REPO
     REPO --> DBCTX
     DBCTX --> MIG
-
     SEED --> DBCTX
+
 ```
 
 ```mermaid
@@ -565,26 +530,27 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-    subgraph Host[Docker Host]
-        subgraph FrontendContainer[frontend-container]
-            FE[React App (nginx / dev server)]
+    subgraph Host["Docker Host"]
+        subgraph FrontendContainer["frontend-container"]
+            FE["React App\n(nginx or dev server)"]
         end
 
-        subgraph ApiContainer[api-container]
-            API[.NET 9 Web API]
+        subgraph ApiContainer["api-container"]
+            API[".NET 9 Web API"]
         end
 
-        subgraph DbContainer[db-container]
-            SQL[(MS-SQL Server)]
+        subgraph DbContainer["db-container"]
+            SQL["MS-SQL Server"]
         end
 
-        subgraph GrafanaContainer[grafana-container]
-            GRAF[Grafana Dashboards]
+        subgraph GrafanaContainer["grafana-container"]
+            GRAF["Grafana dashboards"]
         end
     end
 
-    UserBrowser[User Browser] -->|HTTP :80/443| FE
-    FE -->|HTTP /api/...| API
-    API -->|TCP 1433| SQL
-    GRAF -->|SQL queries| SQL
+    UserBrowser["User browser"] -->|"HTTP :80/443"| FE
+    FE -->|"HTTP /api/..."| API
+    API -->|"TCP 1433"| SQL
+    GRAF -->|"SQL queries"| SQL
+
 ```
