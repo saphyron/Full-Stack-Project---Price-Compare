@@ -133,15 +133,17 @@ Legend: 📁 Folder • 🧩 C#-Code • ⚙️ config/json/yaml • 🪪 .sln/.
 
 ```
 
-
+```text
 Opgave 2: Pricerunner
 	C# Backend API
 	MS-SQL Database
 	Grafena SQL hjemmeside
 	React Frontend
 	Data API for DataManagement
-	
 
+```
+
+```text
 2-ugers plan (10 arbejdsdage)
 
 Antag: du har ca. to uger med nogenlunde fulde dage. Målet er:
@@ -407,7 +409,7 @@ Læg en lokal HTML-fil med kendt struktur.
 
 Lad crawleren hente fra file:// eller en lille testserver.
 
-Så slipper du for at bøvle med rigtige websites / robots.txt osv.
+Så slipper du for at bøvle med rigtige websites / robots.txt osv```
 
 
 ```mermaid
@@ -565,7 +567,7 @@ sequenceDiagram
 flowchart LR
     subgraph Host[Docker Host]
         subgraph FrontendContainer[frontend-container]
-            FE[React App(nginx / dev server)]
+            FE[React App (nginx / dev server)]
         end
 
         subgraph ApiContainer[api-container]
