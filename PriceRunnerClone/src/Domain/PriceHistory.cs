@@ -8,24 +8,24 @@ namespace PriceRunner.Domain
     {
         private PriceHistory() {}
         public PriceHistory(
-            Id id, ProductId pid,
-            Id shopId, Money price,
+            int pid,
+            int shopId, Money price,
             DateTime recordedAtUtc
         )
         {
-            if (id == Id.Empty)
-                throw new ArgumentException("Id ca no be empty.", nameof(id));
-            Id = id;
-            ProductId = pid;
+            if (productId <= 0) throw new ArgumentOutOfRangeException(nameof(productId));
+            if (shopId <= 0) throw new ArgumentOutOfRangeException(nameof(shopId));
+
+            ProductId = productId;
             ShopId = shopId;
-            Price price;
+            Price = price;
             RecordedAt = DateTime.SpecifyKind(recordedAtUtc, DateTimeKind.Utc);
         }
-        public Id Id { get; private set;} // Auto-increment, PK
+        public int Id { get; private set;} // Auto-increment, PK
         public Money Price { get; private set;}
         public Datetime RecordedAt { get; private set;}
-        public ProductId ProductId { get; private set;} // Product Id, FK
-        public Id ShopId { get; private set;} // Shop Id, FK
+        public int ProductId { get; private set;} // Product Id, FK
+        public int ShopId { get; private set;} // Shop Id, FK
         public Product? Product { get; private set;}
         public Shop? Shop { get; private set;}
     }

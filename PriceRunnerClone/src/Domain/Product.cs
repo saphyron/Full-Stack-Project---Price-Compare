@@ -1,41 +1,42 @@
 // src/Domain/Product.cs
 using System;
 using System.Collections.Generic;
-using PriceRunner.Domain.Value;
 
 namespace PriceRunner.Domain
 {
     public class Product
     {
         private readonly List<Price> _prices = new();
+        private readonly List<PriceHistory> _priceHistory = new();
         private Product() {}
-        public Product(ProductId id, string name, string? brand = null, 
-                        string category, string? imageUrl = null)
+        public Product(string name, string? imageUrl = null, int? shopId = null)
         {
-            Id = id;
-            UpdateBasicInformation(name, brand, category, imageUrl);
+            UpdateBasicInformation(name, imageUrl);
+            SetShop(shopId);
         }
         public ProductId Id { get; private set;} // Auto-increment, PK
         public string Name { get; private set;} = string.Empty;
-        public string? Brand { get; private set;}
-        public string Category { get; private set;} = string.Empty;
         public string? ImageUrl { get; private set;} = string.Empty;
 
         public IReadOnlyCollection<Price> Prices => _prices.AsReadOnly();
         public IReadOnlyCollection<PriceHistory> PriceHistory => 
             _priceHistory.AsReadOnly();
         
-        public void UpdateBasicInformation(string name, string? brand, 
-                                            string category, string? imageUrl)
+        public void UpdateBasicInfo(string name, string? productUrl)
         {
-            Name = string.IsNullOrWhiteSpace(name) 
+            Name = string.IsNullOrWhiteSpace(name)
                 ? throw new ArgumentException("Name is required.", nameof(name))
                 : name.Trim();
-            Brand = string.IsNullOrWhiteSpace(brand) ? null : brand.Trim();
-            Category = string.IsNullOrWhiteSpace(category) 
-                ? throw new ArgumentException("category is required.", nameof(category))
-                : category.Trim();
-            ImageUrl = string.IsNullOrWhiteSpace(imageUrl) ? null : imageUrl.Trim();
+
+            ProductUrl = string.IsNullOrWhiteSpace(productUrl) ? null : productUrl.Trim();
+        }
+
+        public void SetShop(int? shopId)
+        {
+            if (shopId.HasValue && shopId.Value <= 0)
+                throw new ArgumentOutOfRangeException(nameof(shopId));
+
+            ShopId = shopId;
         }
 
         public void AddPrice(Price price)
@@ -47,7 +48,7 @@ namespace PriceRunner.Domain
         public void AddPriceHistory(PriceHistory entry)
         {
             if (entry is null) throw new ArgumentNullException(nameof(entry));
-            _priceHistory.add(entry);
+            _priceHistory.Add(entry);
         }
     }
 }

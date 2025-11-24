@@ -8,21 +8,24 @@ namespace PriceRunner.Domain
     {
         private readonly List<Price> _prices = new();
         private readonly List<PriceHistory> _priceHistory = new();
+        private readonly List<Product> _products = new();
 
         private Shop() {}
-        public Shop(Id id, string name, string? websiteUrl)
+        public Shop(string name, string? websiteUrl, int brandid, int categoryId)
         {
-            Id = id == SId.Empty
-                ? throw new ArgumentException("Id cannot be Empty", nameof(id)) 
-                : id;
+            SetBrand(brandid);
+            SetCategory(categoryId);
             UpdateBasicInformation(name, websiteUrl);
         }
-        public SId Id { get; private set;} // Auto-increment, PK
+        public int Id { get; private set;} // Auto-increment, PK
         public string Name { get; private set;} = string.Empty;
         public string? WebSiteUrl { get; private set;}
+        public int BrandId { get; private set;}
+        public int CategoryId { get; private set;}
         public IReadOnlyCollection<Price> Prices => _prices.AsReadOnly();
         public IReadOnlyCollection<PriceHistory> PriceHistories 
             => _priceHistory.AsReadOnly();
+        public IReadOnlyCollection<Product> Products => _products.AsReadOnly();
 
         public void UpdateBasicInformation(string name, string? websiteUrl)
         {
@@ -30,6 +33,28 @@ namespace PriceRunner.Domain
                 ? throw new ArgumentException("Name is required.", nameof(name))
                 : name.Trim();
             WebSiteUrl = string.IsNullOrWhiteSpace(websiteUrl) ? null : websiteUrl.Trim();
+        }
+
+        public void SetBrand(int brandId)
+        {
+            if (brandId <= 0)
+                throw new ArgumentOutOfRangeException(nameof(brandId));
+
+            BrandId = brandId;
+        }
+
+        public void SetCategory(int categoryId)
+        {
+            if (categoryId <= 0)
+                throw new ArgumentOutOfRangeException(nameof(categoryId));
+
+            CategoryId = categoryId;
+        }
+
+        public void AddProduct(Product product)
+        {
+            if (product is null) throw new ArgumentNullException(nameof(product));
+            _products.Add(product);
         }
 
         public void AddPrice(Price price)

@@ -10,7 +10,7 @@ namespace PriceRunner.Domain.Interfaces
     public interface IShopRepository
     {
         Task<Shop?> GetByIdAsync(
-            Guid id,
+            int id,
             CancellationToken cancellationToken = default);
 
         Task<IReadOnlyList<Shop>> GetAllAsync(
@@ -29,7 +29,7 @@ namespace PriceRunner.Domain.Interfaces
             CancellationToken cancellationToken = default);
 
         Task<bool> ExistsAsync(
-            Guid id,
+            int id,
             CancellationToken cancellationToken = default);
     }
 }

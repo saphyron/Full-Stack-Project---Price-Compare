@@ -6,36 +6,40 @@ namespace PriceRunner.Domain
     public class User
     {
         private User() {}
-        public User(Id id, string username, string passwordHash, UserRole role)
+        public User(string username, string passwordHash, int roleId)
         {
-            Id = id == Id.Empty ? 
-                throw new ArgumentException("Id can not be empty.", 
-                nameof(id)) : id;
-            Username = string.IsNullOrWhiteSpace(username)
-                ? throw new ArgumentException("Username can not be empty.", 
-                nameof(username)) : username.Trim();
-            PasswordHash = string.IsNullOrWhiteSpace(passwordHash)
-                ? throw new ArgumentException("Username can not be empty.", 
-                nameof(passwordHash)) : passwordHash.Trim();
-            Role = role;
-
+            UpdateUsername(username);
+            ChangePassword(passwordHash);
+            SetRole(roleId);
         }
-        public Id Id { get; private set;} // Auto-increment, PK
+        public int Id { get; private set;} // Auto-increment, PK
         public string UserName { get; private set;} = string.Empty;
         public string PasswordHash { get; private set;} = string.Empty;
-        public UserRole Role { get; private set;} // Admin / User
-        public bool IsAdmin => Role == UserRole.Admin;
+        public int UserRoleId { get; private set;} // FK → user_roles.user_role_id
+        public UserRole? Role { get; private set;}
+
+        public void UpdateUsername(string username)
+        {
+            if (string.IsNullOrWhiteSpace(username))
+                throw new ArgumentException("Username is required.", nameof(username));
+
+            Username = username.Trim();
+        }
 
         public void ChangePassword(string newPasswordHash)
         {
-            if(string.IsNullOrWhiteSpace(newPasswordHash))
-                throw new ArgumentException("Password is required", 
-                nameof(newPasswordHash));
+            if (string.IsNullOrWhiteSpace(newPasswordHash))
+                throw new ArgumentException("Password hash is required.", nameof(newPasswordHash));
+
             PasswordHash = newPasswordHash;
         }
 
-        public void ChangeRole (UserRole role) {Role = role;}
+        public void SetRole(int roleId)
+        {
+            if (roleId <= 0)
+                throw new ArgumentOutOfRangeException(nameof(roleId), "Role id must be positive.");
 
-        public enum UserRole {User = 0, Admin = 1}
+            UserRoleId = roleId;
+        }
     }
 }
