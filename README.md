@@ -143,7 +143,6 @@ Opgave 2: Pricerunner
 
 ```
 
-```
 ---
 
 ## 2-ugers plan (10 arbejdsdage)
@@ -373,7 +372,7 @@ Du behøver ikke 120% færdig crawler – det er nok at vise en **klar arkitektu
   * Så slipper du for at bøvle med rigtige websites / robots.txt osv.
 
 ---
-```
+
 
 
 ```mermaid
