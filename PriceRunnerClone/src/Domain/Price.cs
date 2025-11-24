@@ -7,29 +7,29 @@ namespace PriceRunner.Domain
     public class Price
     {
         private Price()  {}
-        public Price(Id id, ProductId pid, Id shopId, 
-                        Money amount, DateTime lastUpdateUTC)
+        public Price(int productId, int shopId, Money amount, DateTime lastUpdatedUtc)
         {
-            if (id == Id.Empty)
-                throw new ArgumentException("Id can not be empty.", nameof(id));
-            Guid = id;
-            ProductId = pid;
+            if (productId <= 0) throw new ArgumentOutOfRangeException(nameof(productId));
+            if (shopId <= 0) throw new ArgumentOutOfRangeException(nameof(shopId));
+
+            ProductId = productId;
             ShopId = shopId;
             Amount = amount;
-            LastUpdated = DateTime.SpecifyKind(lastUpdateUTC, DateTimeKind.Utc);
+            LastUpdatedUtc = DateTime.SpecifyKind(lastUpdatedUtc, DateTimeKind.Utc);
         }
-        public Id Guid { get; private set;} // Auto-increment PK
+        public int Id { get; private set;} // Auto-increment PK
+        public double CurrentPrice => Amount.Amount;
         public Money Amount  { get; private set;}
-        public DateTime LastUpdated { get; private set;}
-        public ProductId ProductId { get; private set;} // Product Id, FK
-        public Id ShopId { get; private set;} // Shop Id, FK
+        public DateTime LastUpdatedUtc { get; private set;}
+        public int ProductId { get; private set;} // Product Id, FK
+        public int ShopId { get; private set;} // Shop Id, FK
         public Product? Product { get; private set;} // Navigation Properties
         public Shop? Shop { get; private set;} // Navigation Properties
 
         public void UpdateAmount(Money amount, DateTime updatedAtUtc)
         {
             Amount = amount;
-            LastUpdated = DateTime.SpecifyKind(updatedAtUtc, DateTimeKind.Utc);
+            LastUpdatedUtc = DateTime.SpecifyKind(updatedAtUtc, DateTimeKind.Utc);
         }
     }
 }
