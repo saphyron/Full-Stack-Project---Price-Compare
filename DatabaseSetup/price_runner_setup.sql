@@ -35,7 +35,7 @@ CREATE TABLE categories (
 );
 
 DROP TABLE IF EXISTS shops;
-CREATE TABLE shop (
+CREATE TABLE shops (
   shop_id int NOT NULL AUTO_INCREMENT,
   full_name varchar(255) NOT NULL,
   shop_url text,
@@ -77,7 +77,7 @@ DROP TABLE IF EXISTS product_histories;
 CREATE TABLE products_history (
   products_history_id int NOT NULL AUTO_INCREMENT,
   price float DEFAULT NULL,
-  recored_at datetime,
+  recorded_at datetime,
   product_id int,
   shop_id int,
   PRIMARY KEY (products_history_id),
