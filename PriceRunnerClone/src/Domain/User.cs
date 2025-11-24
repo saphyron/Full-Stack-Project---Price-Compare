@@ -23,7 +23,7 @@ namespace PriceRunner.Domain
             if (string.IsNullOrWhiteSpace(username))
                 throw new ArgumentException("Username is required.", nameof(username));
 
-            Username = username.Trim();
+            UserName = username.Trim();
         }
 
         public void ChangePassword(string newPasswordHash)

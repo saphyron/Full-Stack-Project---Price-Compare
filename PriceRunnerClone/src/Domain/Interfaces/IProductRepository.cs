@@ -11,7 +11,7 @@ namespace PriceRunner.Domain.Interfaces
     {
         Task<Product?> GetByIdAsync(int id, 
             CancellationToken cancellationToken = default);
-        Task<IreadOnlyList<Product>> GetAllAsync( 
+        Task<IReadOnlyList<Product>> GetAllAsync( 
             CancellationToken cancellationToken = default);
         Task AddAsync(
             Product product,
@@ -26,7 +26,7 @@ namespace PriceRunner.Domain.Interfaces
             CancellationToken cancellationToken = default
         );
         Task<bool> ExistsAsync(
-            int product,
+            int productId,
             CancellationToken cancellationToken = default
         );
     }

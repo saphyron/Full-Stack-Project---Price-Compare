@@ -8,10 +8,10 @@ namespace PriceRunner.Domain
     {
         private PriceHistory() {}
         public PriceHistory(
-            int pid,
-            int shopId, Money price,
-            DateTime recordedAtUtc
-        )
+            int productId,
+            int shopId,
+            Money price,
+            DateTime recordedAtUtc)
         {
             if (productId <= 0) throw new ArgumentOutOfRangeException(nameof(productId));
             if (shopId <= 0) throw new ArgumentOutOfRangeException(nameof(shopId));
@@ -23,7 +23,7 @@ namespace PriceRunner.Domain
         }
         public int Id { get; private set;} // Auto-increment, PK
         public Money Price { get; private set;}
-        public Datetime RecordedAt { get; private set;}
+        public DateTime RecordedAt { get; private set;}
         public int ProductId { get; private set;} // Product Id, FK
         public int ShopId { get; private set;} // Shop Id, FK
         public Product? Product { get; private set;}

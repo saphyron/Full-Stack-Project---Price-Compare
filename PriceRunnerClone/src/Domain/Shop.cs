@@ -56,7 +56,6 @@ namespace PriceRunner.Domain
             if (product is null) throw new ArgumentNullException(nameof(product));
             _products.Add(product);
         }
-
         public void AddPrice(Price price)
         {
             if (price is null) throw new ArgumentNullException(nameof(price));
