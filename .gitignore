@@ -42,7 +42,7 @@ tests/obj/
 # Executables
 *.exe
 *.out
-*.app
+#*.app
 
 # debug information files
 *.dwo
@@ -57,7 +57,7 @@ tests/obj/
 *.user
 *.userosscache
 *.sln.docstates
-*.env
+#*.env
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
