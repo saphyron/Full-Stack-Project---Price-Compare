@@ -1,8 +1,20 @@
+## Inspiration
+
+This project is inspired by price comparison platforms such as PriceRunner.  
+All code, database structures, and UI components are implemented from scratch
+for educational and portfolio purposes only.  
+We are not affiliated with, endorsed by, or connected to PriceRunner in any way.
+
+
 Legend: 📁 Folder • 🧩 C#-Code • ⚙️ config/json/yaml • 🪪 .sln/.csproj • 🧾 Docs/Markdown • 🧪 Tests • 🐳 Docker/CI
 ```text
 📁 PriceRunnerClone
   🪪 PriceRunnerClone.sln
   🧾 README.md
+  🧾 LICENSE
+  ⚙️ .env
+  ⚙️ .env.app
+  ⚙️ .gitignore
   📁 docs
     🧾 ARCHITECTURE.md          (lag, SOLID, diagrammer)
     🧾 ER-DIAGRAM.md            (db-modeller og relationer)
@@ -129,7 +141,11 @@ Legend: 📁 Folder • 🧩 C#-Code • ⚙️ config/json/yaml • 🪪 .sln/.
     🐳 docker-compose.yml          (api + sql + frontend + grafana)
     🐳 Dockerfile.backend
     🐳 Dockerfile.frontend
-    ⚙️ github-actions-ci.yml       (byg + test + evt. docker build)
+    🐳 .dockerignore
+    
+  📁 .gtihub
+    📁 workflows
+      ⚙️ github-actions-ci.yml       (byg + test + evt. docker build)
 
 ```
 
@@ -143,7 +159,6 @@ Opgave 2: Pricerunner
 
 ```
 
-```
 ---
 
 ## 2-ugers plan (10 arbejdsdage)
@@ -373,7 +388,7 @@ Du behøver ikke 120% færdig crawler – det er nok at vise en **klar arkitektu
   * Så slipper du for at bøvle med rigtige websites / robots.txt osv.
 
 ---
-```
+
 
 
 ```mermaid
