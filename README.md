@@ -417,20 +417,20 @@ flowchart LR
     end
 
     subgraph Backend[Backend (.NET C# API)]
-        AP[API Layer\n(Controllers)]
-        APP[Application Layer\n(Services, DTOs, Mappers)]
-        DOM[Domain Layer\n(Entities, Value Objects, Interfaces)]
-        INF[Infrastructure Layer\n(EF Core, Repositories)]
+        AP[API Layer (Controllers)]
+        APP[Application Layer (Services, DTOs, Mappers)]
+        DOM[Domain Layer (Entities, Value Objects, Interfaces)]
+        INF[Infrastructure Layer (EF Core, Repositories)]
     end
 
     subgraph DB[Database & Monitoring]
         SQL[(MS-SQL Database)]
-        GRAF[Grafana\n(Dashboards)]
+        GRAF[Grafana (Dashboards)]
     end
 
     subgraph Extra[Ekstra komponenter]
-        CRAWLER[Price Crawler\n(IHostedService)]
-        TESTS[Tests\n(Unit + Integration)]
+        CRAWLER[Price Crawler (IHostedService)]
+        TESTS[Tests (Unit + Integration)]
     end
 
     U -->|"HTTP (REST, JSON)"| AP
@@ -452,26 +452,26 @@ flowchart LR
 ```mermaid
 flowchart TB
     subgraph API[API Layer]
-        CTRL[Controllers\n(Products, Shops, Prices, Auth)]
-        FILT[Exception Filters\n+ Validation]
+        CTRL[Controllers (Products, Shops, Prices, Auth)]
+        FILT[Exception Filters + Validation]
     end
 
     subgraph APP[Application Layer]
-        SRV[Services\n(ProductService, PriceService, AuthService)]
-        DTO[DTOs\n(ProductDto, ProductDetailDto, ShopDto)]
-        MAP[Mappers\n(ProductMapper)]
-        VAL[Validation\n(ProductValidator)]
+        SRV[Services (ProductService, PriceService, AuthService)]
+        DTO[DTOs (ProductDto, ProductDetailDto, ShopDto)]
+        MAP[Mappers (ProductMapper)]
+        VAL[Validation (ProductValidator)]
     end
 
     subgraph DOM[Domain Layer]
-        ENT[Entities\n(Product, Shop, Price, PriceHistory, User)]
-        VO[Value Objects\n(Money, ProductId)]
-        INTF[Interfaces\n(IProductRepository,\n IShopRepository,\n IPriceService)]
+        ENT[Entities (Product, Shop, Price, PriceHistory, User)]
+        VO[Value Objects (Money, ProductId)]
+        INTF[Interfaces (IProductRepository,  IShopRepository,  IPriceService)]
     end
 
     subgraph INF[Infrastructure Layer]
-        DBCTX[AppDbContext\n(EF Core)]
-        REPO[Repositories\n(ProductRepository,\n ShopRepository)]
+        DBCTX[AppDbContext (EF Core)]
+        REPO[Repositories (ProductRepository,  ShopRepository)]
         MIG[Migrations]
         SEED[SeedData]
     end
@@ -558,14 +558,14 @@ sequenceDiagram
     APP->>APP: Map entity -> ProductDetailDto
     APP-->>API: ProductDetailDto
     API-->>FE: 200 OK + JSON
-    FE->>FE: Render product detail page\n(min pris, alle shops, knap "Add to watchlist")
+    FE->>FE: Render product detail page (min pris, alle shops, knap "Add to watchlist")
 ```
 
 ```mermaid
 flowchart LR
     subgraph Host[Docker Host]
         subgraph FrontendContainer[frontend-container]
-            FE[React App\n(nginx / dev server)]
+            FE[React App(nginx / dev server)]
         end
 
         subgraph ApiContainer[api-container]
@@ -577,7 +577,7 @@ flowchart LR
         end
 
         subgraph GrafanaContainer[grafana-container]
-            GRAF[Grafana\nDashboards]
+            GRAF[Grafana Dashboards]
         end
     end
 
