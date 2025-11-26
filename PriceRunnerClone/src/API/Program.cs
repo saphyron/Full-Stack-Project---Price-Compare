@@ -1,34 +1,23 @@
 // src/API/Program.cs
-using System.Data;
-using Dapper;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using MySqlConnector;
 using PriceRunner.Api.Endpoints;
 using PriceRunner.Api.Filters;
 using PriceRunner.Application.Services;
 using PriceRunner.Application.Validation;
-
-
+using PriceRunner.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString =
-    builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? builder.Configuration["MYSQL_CONNECTION_STRING"]
-    ?? "server=localhost;port=3306;database=price_runner;user=root;password=yourpassword;";
+// ---------------------------------------------------------------------
+// Infrastructure: DB-setup (connection string håndteres i AddInfrastructure)
+// ---------------------------------------------------------------------
+builder.Services.AddInfrastructure(builder.Configuration);
 
-// Registrer en IDbConnection per request (scoped).
-builder.Services.AddScoped<IDbConnection>(_ =>
-{
-    var conn = new MySqlConnection(connectionString);
-    conn.Open();
-    return conn;
-});
-
-// Services
+// ---------------------------------------------------------------------
+// Application Services
+// ---------------------------------------------------------------------
 builder.Services.AddScoped<IPriceService, PriceService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IShopService, ShopService>();
@@ -39,7 +28,9 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDataService, DataService>();
 
+// ---------------------------------------------------------------------
 // Validators
+// ---------------------------------------------------------------------
 builder.Services.AddScoped<IProductValidator, ProductValidator>();
 builder.Services.AddScoped<IShopValidator, ShopValidator>();
 builder.Services.AddScoped<IBrandValidator, BrandValidator>();
@@ -47,31 +38,36 @@ builder.Services.AddScoped<ICategoryValidator, CategoryValidator>();
 builder.Services.AddScoped<IUserRoleValidator, UserRoleValidator>();
 builder.Services.AddScoped<IUserValidator, UserValidator>();
 
-
-
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+// ---------------------------------------------------------------------
+// OpenAPI / Swagger
+// ---------------------------------------------------------------------
+// .NET 9 minimal OpenAPI
 builder.Services.AddOpenApi();
 
-// Swagger
+// Swagger for dev/test
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-app.UseApiExceptionFilter(app.Environment); 
+// Global exception filter
+app.UseApiExceptionFilter(app.Environment);
 
-// Configure the HTTP request pipeline.
+// HTTP pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    // .NET 9 OpenAPI endpoint
     app.MapOpenApi();
 }
 
 app.UseHttpsRedirection();
 
+// ---------------------------------------------------------------------
 // Map endpoints
+// ---------------------------------------------------------------------
 app.MapProductEndpoints();
 app.MapShopEndpoints();
 app.MapBrandEndpoints();
@@ -81,14 +77,16 @@ app.MapUserEndpoints();
 app.MapAuthEndpoints();
 app.MapDataEndpoints();
 
+// Template-demo route (kan slettes hvis du vil holde projektet rent)
 var summaries = new[]
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+    "Freezing", "Bracing", "Chilly", "Cool", "Mild",
+    "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
 
 app.MapGet("/weatherforecast", () =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
+    var forecast = Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
         (
             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
