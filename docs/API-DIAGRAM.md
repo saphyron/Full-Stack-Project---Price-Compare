@@ -31,79 +31,79 @@ The main route groups and their responsibility:
 
 ```mermaid
 flowchart TB
-    subgraph Auth[/api/auth]
-        A1["POST /login"]
+    subgraph Auth
+        A1["POST /api/auth/login"]
     end
 
-    subgraph Products[/api/products]
-        P1["GET /"]
-        P2["GET /{id}"]
-        P3["POST /"]
-        P4["PUT /{id}"]
-        P5["DELETE /{id}"]
-        P6["GET /by-shop/{shopId}"]
-        P7["GET /search"]
-        P8["GET /{id}/prices"]
-        P9["GET /{id}/cheapest"]
-        P10["GET /{id}/history"]
-        P11["GET /all-prices"]
-        P12["GET /with-brand-category"]
+    subgraph Products
+        P1["GET /api/products"]
+        P2["GET /api/products/{id}"]
+        P3["POST /api/products"]
+        P4["PUT /api/products/{id}"]
+        P5["DELETE /api/products/{id}"]
+        P6["GET /api/products/by-shop/{shopId}"]
+        P7["GET /api/products/search"]
+        P8["GET /api/products/{id}/prices"]
+        P9["GET /api/products/{id}/cheapest"]
+        P10["GET /api/products/{id}/history"]
+        P11["GET /api/products/all-prices"]
+        P12["GET /api/products/with-brand-category"]
     end
 
-    subgraph Shops[/api/shops]
-        S1["GET /"]
-        S2["GET /{id}"]
-        S3["POST /"]
-        S4["PUT /{id}"]
-        S5["DELETE /{id}"]
-        S6["GET /{id}/products"]
-        S7["GET /{id}/prices"]
+    subgraph Shops
+        S1["GET /api/shops"]
+        S2["GET /api/shops/{id}"]
+        S3["POST /api/shops"]
+        S4["PUT /api/shops/{id}"]
+        S5["DELETE /api/shops/{id}"]
+        S6["GET /api/shops/{id}/products"]
+        S7["GET /api/shops/{id}/prices"]
     end
 
-    subgraph Brands[/api/brands]
-        B1["GET /"]
-        B2["GET /{id}"]
-        B3["POST /"]
-        B4["PUT /{id}"]
-        B5["DELETE /{id}"]
-        B6["GET /{id}/shops"]
+    subgraph Brands
+        B1["GET /api/brands"]
+        B2["GET /api/brands/{id}"]
+        B3["POST /api/brands"]
+        B4["PUT /api/brands/{id}"]
+        B5["DELETE /api/brands/{id}"]
+        B6["GET /api/brands/{id}/shops"]
     end
 
-    subgraph Categories[/api/categories]
-        C1["GET /"]
-        C2["GET /{id}"]
-        C3["POST /"]
-        C4["PUT /{id}"]
-        C5["DELETE /{id}"]
+    subgraph Categories
+        C1["GET /api/categories"]
+        C2["GET /api/categories/{id}"]
+        C3["POST /api/categories"]
+        C4["PUT /api/categories/{id}"]
+        C5["DELETE /api/categories/{id}"]
     end
 
-    subgraph Prices[/api/product-prices]
-        PP1["CRUD product_prices"]
+    subgraph Prices
+        PP1["CRUD /api/product-prices"]
     end
 
-    subgraph History[/api/product-price-history]
-        PH1["CRUD products_history"]
+    subgraph History
+        PH1["CRUD /api/product-price-history"]
     end
 
-    subgraph Users[/api/users]
-        U1["GET /"]
-        U2["GET /{id}"]
-        U3["GET /by-role/{roleId}"]
-        U4["POST /"]
-        U5["PUT /{id}"]
-        U6["DELETE /{id}"]
+    subgraph Users
+        U1["GET /api/users"]
+        U2["GET /api/users/{id}"]
+        U3["GET /api/users/by-role/{roleId}"]
+        U4["POST /api/users"]
+        U5["PUT /api/users/{id}"]
+        U6["DELETE /api/users/{id}"]
     end
 
-    subgraph UserRoles[/api/user-roles]
-        UR1["CRUD user_roles"]
+    subgraph UserRoles
+        UR1["CRUD /api/user-roles"]
     end
 
-    subgraph Data[/api/data]
-        D1["GET /products-flat"]
-        D2["GET /price-history"]
-        D3["GET /shop-stats"]
-        D4["GET /brand-stats"]
-        D5["GET /category-stats"]
+    subgraph Data
+        D1["GET /api/data/products-flat"]
+        D2["GET /api/data/price-history"]
+        D3["GET /api/data/shop-stats"]
+        D4["GET /api/data/brand-stats"]
+        D5["GET /api/data/category-stats"]
     end
 ```
 
