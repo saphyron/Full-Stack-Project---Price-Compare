@@ -143,9 +143,9 @@ Legend: 📁 Folder • 🧩 C#-Code • ⚙️ config/json/yaml • 🪪 .sln/.
     🐳 Dockerfile.frontend
     🐳 .dockerignore
     
-  📁 .gtihub
+  📁 .github
     📁 workflows
-      ⚙️ github-actions-ci.yml       (byg + test + evt. docker build)
+      ⚙️ ci.yml       (byg + test + evt. docker build)
 
 ```
 
