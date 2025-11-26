@@ -27,6 +27,7 @@ builder.Services.AddScoped<IUserRoleService, UserRoleService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDataService, DataService>();
+builder.Services.AddScoped<IPriceService, Priceservice>();
 
 // ---------------------------------------------------------------------
 // Validators
@@ -76,6 +77,9 @@ app.MapUserRoleEndpoints();
 app.MapUserEndpoints();
 app.MapAuthEndpoints();
 app.MapDataEndpoints();
+app.MapProductPriceEndpoints();
+app.MapProductPriceHistoryEndpoints();
+
 
 // Template-demo route (kan slettes hvis du vil holde projektet rent)
 var summaries = new[]
