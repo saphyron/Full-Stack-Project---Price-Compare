@@ -39,13 +39,7 @@ CREATE TABLE shops (
   shop_id int NOT NULL AUTO_INCREMENT,
   full_name varchar(255) NOT NULL,
   shop_url text,
-  brand_id int NOT NULL,
-  category_id int NOT NULL,
   PRIMARY KEY (shop_id),
-  KEY brand_id (brand_id),
-  KEY category_id (category_id),
-  CONSTRAINT brand_cons FOREIGN KEY (brand_id) REFERENCES brands (brand_id),
-  CONSTRAINT category_cons FOREIGN KEY (category_id) REFERENCES categories (category_id)
 );
 
 DROP TABLE IF EXISTS products;
@@ -54,9 +48,15 @@ CREATE TABLE products (
   product_name varchar(255) NOT NULL,
   product_url text,
   shop_id int,
+  brand_id int NOT NULL,
+  category_id int NOT NULL,
   PRIMARY KEY (product_id),
   KEY shop_id (shop_id),
+  KEY brand_id (brand_id),
+  KEY category_id (category_id),
   CONSTRAINT shop_conp FOREIGN KEY (shop_id) REFERENCES shops (shop_id)
+  CONSTRAINT brand_cons FOREIGN KEY (brand_id) REFERENCES brands (brand_id),
+  CONSTRAINT category_cons FOREIGN KEY (category_id) REFERENCES categories (category_id)
 );
 
 DROP TABLE IF EXISTS product_prices;
