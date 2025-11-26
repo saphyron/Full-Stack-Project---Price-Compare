@@ -1,11 +1,12 @@
-using System.Data;
 using System.Security.Cryptography;
 using System.Text;
-using Dapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using PriceRunner.Api.Models;
 using PriceRunner.Application.DTOs;
+using PriceRunner.Application.Services;
+using PriceRunner.Application.Validation;
+
 
 namespace PriceRunner.Api.Endpoints
 {
