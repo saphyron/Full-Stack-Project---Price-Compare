@@ -8,6 +8,12 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.9" />
+    <PackageReference Include="Dapper" Version="2.1.66" />
+    <PackageReference Include="MySqlConnector" Version="2.5.0" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Kode der ikke længere bliver brugt\**\*.cs" />
+  </ItemGroup>
+
 
 </Project>
