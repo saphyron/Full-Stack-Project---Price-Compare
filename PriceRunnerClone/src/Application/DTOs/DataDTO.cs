@@ -58,12 +58,6 @@ namespace PriceRunner.Application.DTOs
         public int ShopId { get; set; }
         public string ShopName { get; set; } = string.Empty;
 
-        public int BrandId { get; set; }
-        public string BrandName { get; set; } = string.Empty;
-
-        public int CategoryId { get; set; }
-        public string CategoryName { get; set; } = string.Empty;
-
         public int ProductCount { get; set; }
         public int PriceRowCount { get; set; }
 
@@ -71,6 +65,7 @@ namespace PriceRunner.Application.DTOs
         public double? MaxPrice { get; set; }
         public double? AvgPrice { get; set; }
     }
+
 
     /// <summary>
     /// Aggregerede stats per brand.

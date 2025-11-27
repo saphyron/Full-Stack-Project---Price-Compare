@@ -4,37 +4,34 @@ namespace PriceRunner.Application.Validation
 {
     public interface IShopValidator
     {
-        IReadOnlyList<string> ValidateForCreate(string fullName, string? shopUrl, int brandId, int categoryId);
-        IReadOnlyList<string> ValidateForUpdate(string fullName, string? shopUrl, int brandId, int categoryId);
+        IReadOnlyList<string> ValidateForCreate(string fullName, string? shopUrl);
+        IReadOnlyList<string> ValidateForUpdate(string fullName, string? shopUrl);
     }
+
 
     public sealed class ShopValidator : IShopValidator
     {
-        public IReadOnlyList<string> ValidateForCreate(string fullName, string? shopUrl, int brandId, int categoryId)
-            => ValidateCommon(fullName, shopUrl, brandId, categoryId);
+        public IReadOnlyList<string> ValidateForCreate(string fullName, string? shopUrl)
+            => ValidateCommon(fullName, shopUrl);
 
-        public IReadOnlyList<string> ValidateForUpdate(string fullName, string? shopUrl, int brandId, int categoryId)
-            => ValidateCommon(fullName, shopUrl, brandId, categoryId);
+        public IReadOnlyList<string> ValidateForUpdate(string fullName, string? shopUrl)
+            => ValidateCommon(fullName, shopUrl);
 
-        private static List<string> ValidateCommon(string fullName, string? shopUrl, int brandId, int categoryId)
+        private static List<string> ValidateCommon(string fullName, string? shopUrl)
         {
             var errors = new List<string>();
 
             if (string.IsNullOrWhiteSpace(fullName))
                 errors.Add("FullName is required.");
-            else if (fullName.Length > 255)
+
+            if (fullName?.Length > 255)
                 errors.Add("FullName must be at most 255 characters.");
 
-            if (!string.IsNullOrWhiteSpace(shopUrl) && shopUrl.Length > 2000)
-                errors.Add("ShopUrl must be at most 2000 characters.");
-
-            if (brandId <= 0)
-                errors.Add("BrandId must be a positive integer.");
-
-            if (categoryId <= 0)
-                errors.Add("CategoryId must be a positive integer.");
+            if (shopUrl is not null && shopUrl.Length > 2000)
+                errors.Add("ShopUrl is too long.");
 
             return errors;
         }
     }
+
 }
