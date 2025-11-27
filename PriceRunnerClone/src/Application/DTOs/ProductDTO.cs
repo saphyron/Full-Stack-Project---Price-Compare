@@ -13,10 +13,15 @@ namespace PriceRunner.Application.DTOs
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? ProductUrl { get; set; }
+
         public int? ShopId { get; set; }
         public string? ShopName { get; set; }
-        public string? BrandName { get; set; }
-        public string? CategoryName { get; set; }
+
+        public int BrandId { get; set; }           // products.brand_id
+        public string? BrandName { get; set; }     // brands.brand_name
+
+        public int CategoryId { get; set; }        // products.category_id
+        public string? CategoryName { get; set; }  // categories.category_name
 
         // Ekstra felter (kun udfyldt ved detail-endpoints)
         public List<ProductPriceDto>? Prices { get; set; }
@@ -28,12 +33,12 @@ namespace PriceRunner.Application.DTOs
     /// </summary>
     public sealed class ProductPriceDto
     {
-        public int Id { get; set; }              // product_price_id
-        public int ShopId { get; set; }          // shop_id
-        public string? ShopName { get; set; }    // s.full_name
-        public double Amount { get; set; }       // current_price
+        public int Id { get; set; }                    // product_price_id
+        public int ShopId { get; set; }                // shop_id
+        public string? ShopName { get; set; }          // s.full_name
+        public double Amount { get; set; }             // current_price
         public string Currency { get; set; } = "DKK";
-        public DateTime? LastUpdatedUtc { get; set; } // last_updated
+        public DateTime? LastUpdatedUtc { get; set; }  // last_updated
     }
 
     /// <summary>
@@ -41,12 +46,12 @@ namespace PriceRunner.Application.DTOs
     /// </summary>
     public sealed class ProductHistoryDto
     {
-        public int Id { get; set; }              // products_history_id
-        public int ShopId { get; set; }          // shop_id
-        public string? ShopName { get; set; }    // s.full_name
-        public double Amount { get; set; }       // price
+        public int Id { get; set; }                    // products_history_id
+        public int ShopId { get; set; }                // shop_id
+        public string? ShopName { get; set; }          // s.full_name
+        public double Amount { get; set; }             // price
         public string Currency { get; set; } = "DKK";
-        public DateTime? RecordedAtUtc { get; set; } // recorded_at
+        public DateTime? RecordedAtUtc { get; set; }   // recorded_at
     }
 
     /// <summary>
@@ -55,15 +60,15 @@ namespace PriceRunner.Application.DTOs
     /// </summary>
     public sealed class ProductWithPriceDto
     {
-        public int ProductId { get; set; }          // p.product_id
+        public int ProductId { get; set; }                 // p.product_id
         public string ProductName { get; set; } = string.Empty; // p.product_name
-        public string? ProductUrl { get; set; }     // p.product_url
+        public string? ProductUrl { get; set; }            // p.product_url
 
-        public int ShopId { get; set; }             // s.shop_id
+        public int ShopId { get; set; }                    // s.shop_id
         public string ShopName { get; set; } = string.Empty; // s.full_name
 
-        public double Amount { get; set; }          // pp.current_price
+        public double Amount { get; set; }                 // pp.current_price
         public string Currency { get; set; } = "DKK";
-        public DateTime? LastUpdatedUtc { get; set; } // pp.last_updated
+        public DateTime? LastUpdatedUtc { get; set; }      // pp.last_updated
     }
 }

@@ -5,7 +5,6 @@ using PriceRunner.Application.DTOs;
 using PriceRunner.Application.Services;
 using PriceRunner.Application.Validation;
 
-
 namespace PriceRunner.Api.Endpoints
 {
     public static class ProductEndpoint
@@ -40,11 +39,25 @@ namespace PriceRunner.Api.Endpoints
                 IProductService svc,
                 IProductValidator validator) =>
             {
-                var errors = validator.ValidateForCreate(request.Name, request.ProductUrl, request.ShopId);
+                var errors = validator.ValidateForCreate(
+                    request.Name,
+                    request.ProductUrl,
+                    request.ShopId,
+                    request.BrandId,
+                    request.CategoryId
+                );
+
                 if (errors.Count > 0)
                     return Results.BadRequest(new { errors });
 
-                var created = await svc.CreateAsync(request.Name, request.ProductUrl, request.ShopId);
+                var created = await svc.CreateAsync(
+                    request.Name,
+                    request.ProductUrl,
+                    request.ShopId,
+                    request.BrandId,
+                    request.CategoryId
+                );
+
                 return Results.Created($"/api/products/{created.Id}", created);
             });
 
@@ -55,11 +68,26 @@ namespace PriceRunner.Api.Endpoints
                 IProductService svc,
                 IProductValidator validator) =>
             {
-                var errors = validator.ValidateForUpdate(request.Name, request.ProductUrl, request.ShopId);
+                var errors = validator.ValidateForUpdate(
+                    request.Name,
+                    request.ProductUrl,
+                    request.ShopId,
+                    request.BrandId,
+                    request.CategoryId
+                );
+
                 if (errors.Count > 0)
                     return Results.BadRequest(new { errors });
 
-                var updated = await svc.UpdateAsync(id, request.Name, request.ProductUrl, request.ShopId);
+                var updated = await svc.UpdateAsync(
+                    id,
+                    request.Name,
+                    request.ProductUrl,
+                    request.ShopId,
+                    request.BrandId,
+                    request.CategoryId
+                );
+
                 return updated ? Results.NoContent() : Results.NotFound();
             });
 
@@ -113,7 +141,6 @@ namespace PriceRunner.Api.Endpoints
             // GET /api/products/with-brand-category
             group.MapGet("/with-brand-category", async (IProductService svc) =>
                 Results.Ok(await svc.GetWithBrandCategoryAsync()));
-
 
             return routes;
         }

@@ -27,7 +27,6 @@ builder.Services.AddScoped<IUserRoleService, UserRoleService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IDataService, DataService>();
-builder.Services.AddScoped<IPriceService, Priceservice>();
 
 // ---------------------------------------------------------------------
 // Validators

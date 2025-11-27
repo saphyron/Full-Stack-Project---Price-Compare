@@ -28,13 +28,13 @@ namespace PriceRunner.Application.Services
         {
             const string sql = @"
             SELECT
-                c.category_id    AS Id,
-                c.category_name  AS Name,
+                c.category_id      AS Id,
+                c.category_name    AS Name,
                 COUNT(DISTINCT s.shop_id)    AS ShopCount,
                 COUNT(DISTINCT p.product_id) AS ProductCount
             FROM categories c
-            LEFT JOIN shops    s ON s.category_id = c.category_id
-            LEFT JOIN products p ON p.shop_id     = s.shop_id
+            LEFT JOIN products p ON p.category_id = c.category_id
+            LEFT JOIN shops    s ON s.shop_id     = p.shop_id
             GROUP BY c.category_id, c.category_name
             ORDER BY c.category_name;";
 
@@ -45,13 +45,13 @@ namespace PriceRunner.Application.Services
         {
             const string sql = @"
             SELECT
-                c.category_id    AS Id,
-                c.category_name  AS Name,
+                c.category_id      AS Id,
+                c.category_name    AS Name,
                 COUNT(DISTINCT s.shop_id)    AS ShopCount,
                 COUNT(DISTINCT p.product_id) AS ProductCount
             FROM categories c
-            LEFT JOIN shops    s ON s.category_id = c.category_id
-            LEFT JOIN products p ON p.shop_id     = s.shop_id
+            LEFT JOIN products p ON p.category_id = c.category_id
+            LEFT JOIN shops    s ON s.shop_id     = p.shop_id
             WHERE c.category_id = @Id
             GROUP BY c.category_id, c.category_name;";
 

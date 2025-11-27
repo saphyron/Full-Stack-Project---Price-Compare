@@ -11,8 +11,10 @@ namespace PriceRunner.Application.Services
     {
         Task<IEnumerable<ProductDto>> GetAllAsync();
         Task<ProductDto?> GetByIdAsync(int id);
-        Task<ProductDto> CreateAsync(string name, string? productUrl, int? shopId);
-        Task<bool> UpdateAsync(int id, string name, string? productUrl, int? shopId);
+
+        Task<ProductDto> CreateAsync(string name, string? productUrl, int? shopId, int brandId, int categoryId);
+        Task<bool> UpdateAsync(int id, string name, string? productUrl, int? shopId, int brandId, int categoryId);
+
         Task<bool> DeleteAsync(int id);
 
         Task<IEnumerable<ProductDto>> GetByShopAsync(int shopId);
@@ -41,13 +43,19 @@ namespace PriceRunner.Application.Services
         {
             const string sql = @"
             SELECT 
-                p.product_id   AS Id,
-                p.product_name AS Name,
-                p.product_url  AS ProductUrl,
-                p.shop_id      AS ShopId,
-                s.full_name    AS ShopName
+                p.product_id      AS Id,
+                p.product_name    AS Name,
+                p.product_url     AS ProductUrl,
+                p.shop_id         AS ShopId,
+                s.full_name       AS ShopName,
+                p.brand_id        AS BrandId,
+                b.brand_name      AS BrandName,
+                p.category_id     AS CategoryId,
+                c.category_name   AS CategoryName
             FROM products p
-            LEFT JOIN shops s ON s.shop_id = p.shop_id
+            LEFT JOIN shops      s ON s.shop_id      = p.shop_id
+            INNER JOIN brands    b ON b.brand_id     = p.brand_id
+            INNER JOIN categories c ON c.category_id = p.category_id
             ORDER BY p.product_name;";
 
             var items = await _db.QueryAsync<ProductDto>(sql);
@@ -58,13 +66,19 @@ namespace PriceRunner.Application.Services
         {
             const string productSql = @"
             SELECT 
-                p.product_id   AS Id,
-                p.product_name AS Name,
-                p.product_url  AS ProductUrl,
-                p.shop_id      AS ShopId,
-                s.full_name    AS ShopName
+                p.product_id      AS Id,
+                p.product_name    AS Name,
+                p.product_url     AS ProductUrl,
+                p.shop_id         AS ShopId,
+                s.full_name       AS ShopName,
+                p.brand_id        AS BrandId,
+                b.brand_name      AS BrandName,
+                p.category_id     AS CategoryId,
+                c.category_name   AS CategoryName
             FROM products p
-            LEFT JOIN shops s ON s.shop_id = p.shop_id
+            LEFT JOIN shops      s ON s.shop_id      = p.shop_id
+            INNER JOIN brands    b ON b.brand_id     = p.brand_id
+            INNER JOIN categories c ON c.category_id = p.category_id
             WHERE p.product_id = @Id;";
 
             var product = await _db.QuerySingleOrDefaultAsync<ProductDto>(productSql, new { Id = id });
@@ -78,36 +92,44 @@ namespace PriceRunner.Application.Services
             return product;
         }
 
-        public async Task<ProductDto> CreateAsync(string name, string? productUrl, int? shopId)
+        public async Task<ProductDto> CreateAsync(string name, string? productUrl, int? shopId, int brandId, int categoryId)
         {
             const string insertSql = @"
-            INSERT INTO products (product_name, product_url, shop_id)
-            VALUES (@Name, @ProductUrl, @ShopId);
+            INSERT INTO products (product_name, product_url, shop_id, brand_id, category_id)
+            VALUES (@Name, @ProductUrl, @ShopId, @BrandId, @CategoryId);
             SELECT LAST_INSERT_ID();";
 
             var newId = await _db.ExecuteScalarAsync<int>(insertSql, new
             {
                 Name = name,
                 ProductUrl = productUrl,
-                ShopId = shopId
+                ShopId = shopId,
+                BrandId = brandId,
+                CategoryId = categoryId
             });
 
             const string getSql = @"
             SELECT 
-                p.product_id   AS Id,
-                p.product_name AS Name,
-                p.product_url  AS ProductUrl,
-                p.shop_id      AS ShopId,
-                s.full_name    AS ShopName
+                p.product_id      AS Id,
+                p.product_name    AS Name,
+                p.product_url     AS ProductUrl,
+                p.shop_id         AS ShopId,
+                s.full_name       AS ShopName,
+                p.brand_id        AS BrandId,
+                b.brand_name      AS BrandName,
+                p.category_id     AS CategoryId,
+                c.category_name   AS CategoryName
             FROM products p
-            LEFT JOIN shops s ON s.shop_id = p.shop_id
+            LEFT JOIN shops      s ON s.shop_id      = p.shop_id
+            INNER JOIN brands    b ON b.brand_id     = p.brand_id
+            INNER JOIN categories c ON c.category_id = p.category_id
             WHERE p.product_id = @Id;";
 
             var created = await _db.QuerySingleAsync<ProductDto>(getSql, new { Id = newId });
             return created;
         }
 
-        public async Task<bool> UpdateAsync(int id, string name, string? productUrl, int? shopId)
+        public async Task<bool> UpdateAsync(int id, string name, string? productUrl, int? shopId, int brandId, int categoryId)
         {
             const string existsSql = "SELECT COUNT(*) FROM products WHERE product_id = @Id;";
             var count = await _db.ExecuteScalarAsync<long>(existsSql, new { Id = id });
@@ -118,7 +140,9 @@ namespace PriceRunner.Application.Services
             UPDATE products
             SET product_name = @Name,
                 product_url  = @ProductUrl,
-                shop_id      = @ShopId
+                shop_id      = @ShopId,
+                brand_id     = @BrandId,
+                category_id  = @CategoryId
             WHERE product_id = @Id;";
 
             await _db.ExecuteAsync(updateSql, new
@@ -126,7 +150,9 @@ namespace PriceRunner.Application.Services
                 Id = id,
                 Name = name,
                 ProductUrl = productUrl,
-                ShopId = shopId
+                ShopId = shopId,
+                BrandId = brandId,
+                CategoryId = categoryId
             });
 
             return true;
@@ -143,13 +169,19 @@ namespace PriceRunner.Application.Services
         {
             const string sql = @"
             SELECT 
-                p.product_id   AS Id,
-                p.product_name AS Name,
-                p.product_url  AS ProductUrl,
-                p.shop_id      AS ShopId,
-                s.full_name    AS ShopName
+                p.product_id      AS Id,
+                p.product_name    AS Name,
+                p.product_url     AS ProductUrl,
+                p.shop_id         AS ShopId,
+                s.full_name       AS ShopName,
+                p.brand_id        AS BrandId,
+                b.brand_name      AS BrandName,
+                p.category_id     AS CategoryId,
+                c.category_name   AS CategoryName
             FROM products p
-            LEFT JOIN shops s ON s.shop_id = p.shop_id
+            LEFT JOIN shops      s ON s.shop_id      = p.shop_id
+            INNER JOIN brands    b ON b.brand_id     = p.brand_id
+            INNER JOIN categories c ON c.category_id = p.category_id
             WHERE p.shop_id = @ShopId
             ORDER BY p.product_name;";
 
@@ -161,13 +193,19 @@ namespace PriceRunner.Application.Services
         {
             const string sql = @"
             SELECT 
-                p.product_id   AS Id,
-                p.product_name AS Name,
-                p.product_url  AS ProductUrl,
-                p.shop_id      AS ShopId,
-                s.full_name    AS ShopName
+                p.product_id      AS Id,
+                p.product_name    AS Name,
+                p.product_url     AS ProductUrl,
+                p.shop_id         AS ShopId,
+                s.full_name       AS ShopName,
+                p.brand_id        AS BrandId,
+                b.brand_name      AS BrandName,
+                p.category_id     AS CategoryId,
+                c.category_name   AS CategoryName
             FROM products p
-            LEFT JOIN shops s ON s.shop_id = p.shop_id
+            LEFT JOIN shops      s ON s.shop_id      = p.shop_id
+            INNER JOIN brands    b ON b.brand_id     = p.brand_id
+            INNER JOIN categories c ON c.category_id = p.category_id
             WHERE (@Name IS NULL OR p.product_name LIKE CONCAT('%', @Name, '%'))
             ORDER BY p.product_name;";
 
@@ -205,12 +243,14 @@ namespace PriceRunner.Application.Services
                 p.product_url     AS ProductUrl,
                 p.shop_id         AS ShopId,
                 s.full_name       AS ShopName,
+                p.brand_id        AS BrandId,
                 b.brand_name      AS BrandName,
+                p.category_id     AS CategoryId,
                 c.category_name   AS CategoryName
             FROM products p
-            LEFT JOIN shops s      ON s.shop_id     = p.shop_id
-            LEFT JOIN brands b     ON b.brand_id    = s.brand_id
-            LEFT JOIN categories c ON c.category_id = s.category_id
+            LEFT JOIN shops      s ON s.shop_id      = p.shop_id
+            INNER JOIN brands    b ON b.brand_id     = p.brand_id
+            INNER JOIN categories c ON c.category_id = p.category_id
             ORDER BY p.product_name;";
 
             var items = await _db.QueryAsync<ProductDto>(sql);

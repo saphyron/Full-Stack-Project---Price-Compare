@@ -5,7 +5,6 @@ using PriceRunner.Application.DTOs;
 using PriceRunner.Application.Services;
 using PriceRunner.Application.Validation;
 
-
 namespace PriceRunner.Api.Endpoints
 {
     public static class ShopEndpoint
@@ -36,11 +35,11 @@ namespace PriceRunner.Api.Endpoints
                 IShopService svc,
                 IShopValidator validator) =>
             {
-                var errors = validator.ValidateForCreate(req.FullName, req.ShopUrl, req.BrandId, req.CategoryId);
+                var errors = validator.ValidateForCreate(req.FullName, req.ShopUrl);
                 if (errors.Count > 0)
                     return Results.BadRequest(new { errors });
 
-                var created = await svc.CreateAsync(req.FullName, req.ShopUrl, req.BrandId, req.CategoryId);
+                var created = await svc.CreateAsync(req.FullName, req.ShopUrl);
                 return Results.Created($"/api/shops/{created.Id}", created);
             });
 
@@ -51,11 +50,11 @@ namespace PriceRunner.Api.Endpoints
                 IShopService svc,
                 IShopValidator validator) =>
             {
-                var errors = validator.ValidateForUpdate(req.FullName, req.ShopUrl, req.BrandId, req.CategoryId);
+                var errors = validator.ValidateForUpdate(req.FullName, req.ShopUrl);
                 if (errors.Count > 0)
                     return Results.BadRequest(new { errors });
 
-                var updated = await svc.UpdateAsync(id, req.FullName, req.ShopUrl, req.BrandId, req.CategoryId);
+                var updated = await svc.UpdateAsync(id, req.FullName, req.ShopUrl);
                 return updated ? Results.NoContent() : Results.NotFound();
             });
 
