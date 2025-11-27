@@ -1,10 +1,18 @@
 using Microsoft.ML;
 using Microsoft.ML.Transforms.TimeSeries;
+using System.Runtime.CompilerServices;
 public class PricesPredict
 {
     private const int _maxPreditions = 10;
-    private MLContext _mlContext = new MLContext();
-    public PriceForecast UseModel(string product,int predictions)
+    private static MLContext _mlContext = new MLContext();
+    private static bool _test;
+    public PricesPredict(bool test = false)
+    {
+        _test = test;
+    }
+
+    public (List<float> forcastedprices,List<float> lowboundprices,List<float> upperboundprices) 
+        GetPrediction(string product,int predictions)
     {
         if(predictions > _maxPreditions)
             throw new Exception("Give max 10 forudsigelser");
@@ -17,13 +25,17 @@ public class PricesPredict
         // Brug engine til at forudsige:
         var forecast = loadedEngine.Predict();
 
-        return new PriceForecast()
-        {
-            ForecastedPrice = forecast?.ForecastedPrice?.Take(predictions).ToArray(),
-            LowerBoundPrice = forecast?.LowerBoundPrice?.Take(predictions).ToArray(),
-            UpperBoundPrice = forecast?.UpperBoundPrice?.Take(predictions).ToArray()
-        };
+        return 
+        (forecast?.ForecastedPrice?.Take(predictions).ToList(),
+         forecast?.LowerBoundPrice?.Take(predictions).ToList(),
+         forecast?.UpperBoundPrice?.Take(predictions).ToList());
 
+        //return new PriceForecast()
+        //{
+            //ForecastedPrice = forecast?.ForecastedPrice ? .Take(predictions).ToArray(),
+            //LowerBoundPrice = forecast?.LowerBoundPrice ? .Take(predictions).ToArray(),
+            //UpperBoundPrice = forecast?.UpperBoundPrice ? .Take(predictions).ToArray()
+        //};
     }
 
     public void RetrainModel(string product = "",List<float>? prics = null)
@@ -31,9 +43,8 @@ public class PricesPredict
         List<PriceData>? data;
         if(prics == null || prics?.Count == 0)
         {
-
             var allDataView = _mlContext.Data.LoadFromTextFile<PriceData>(
-                    path: GetProductPath(filetype:"csv"),
+                    path: GetProductPath(filetype:"csv", create:true),
                     hasHeader: true,
                     separatorChar: ',');
 
@@ -68,6 +79,33 @@ public class PricesPredict
 
         var model = pipeline.Fit(dataView);
 
+        if(_test)
+            PrintAccuacy(testData,model);
+        
+        _mlContext.Model.Save(model,dataView.Schema,GetProductPath(product,true));
+    }
+
+    private static List<PriceData> CreatePriceDataList(List<float>? prices) 
+        => prices == null ? new List<PriceData>() : 
+        [.. prices.Select(x => new PriceData{Price = x})];
+
+    private static string GetProductPath(string product = "", bool create = false, string filetype = "zip", [CallerFilePath] string currentFile = "")
+    {
+        product = product == "" ? 
+            "price_data" : 
+            product;
+
+        string projectRoot = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(currentFile), @"..\"));
+        var fullpath = Path.Combine(projectRoot, "Models", $"{product}.{filetype}");
+
+        if (!File.Exists(fullpath) && !create)
+            throw new Exception("Der er ikke nogen model for produktet");
+        
+        return fullpath;
+    }
+
+    private static void PrintAccuacy(float[]? testData, SsaForecastingTransformer model)
+    {
         // Lav forudsigelse
         var forecastEngine = model.CreateTimeSeriesEngine<PriceData, PriceForecast>(_mlContext);
         var forecast = forecastEngine.Predict();
@@ -82,30 +120,6 @@ public class PricesPredict
             float procent = lower / upper;
             Console.WriteLine($"t+{i + 1}: actual={actual:0.00}, predicted={predicted:0.00} (CI: {lower:0.00} - {upper:0.00}) procent: {procent:0.00}");
         }
-        
-        _mlContext.Model.Save(model,dataView.Schema,GetProductPath(product,true));
-    }
-
-    private static List<PriceData> CreatePriceDataList(List<float>? prices) 
-        => prices == null ? new List<PriceData>() : 
-        [.. prices.Select(x => new PriceData{Price = x})];
-
-    private static string GetProductPath(string product = "", bool create = false, string filetype = "zip")
-    {
-        product = product == "" ? 
-            "price_data" : 
-            product;
-
-#if DEBUG
-        string projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, @"..\..\.."));
-        var fullpath = Path.Combine(projectRoot, "Classes", $"{product}.{filetype}");
-#else
-        var fullpath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Classes", $"{product}.{filetype}");
-#endif
-        if (!File.Exists(fullpath) && !create)
-            throw new Exception("Der er ikke nogen model for for produktet");
-        
-        return fullpath;
     }
     
 }
