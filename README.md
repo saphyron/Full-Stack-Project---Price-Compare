@@ -6,6 +6,95 @@ for educational and portfolio purposes only.
 We are not affiliated with, endorsed by, or connected to PriceRunner in any way.
 
 
+# PriceRunnerClone backend (Frontend Comming Later)
+
+A small .NET 9 Minimal API backend that mimics some core ideas from
+price comparison sites (like PriceRunner):
+
+- Products, shops, brands, categories
+- Current product prices and historical price data
+- Data endpoints optimised for analysis, ML and dashboards
+
+This repository currently contains the **backend + tests**.
+A React frontend and web crawler are planned but not included yet.
+
+---
+
+## Table of contents
+
+- [Features](#features)
+- [Tech stack](#tech-stack)
+- [Architecture overview](#architecture-overview)
+- [Project structure](#project-structure)
+- [Getting started](#getting-started)
+- [API overview](#api-overview)
+- [Testing](#testing)
+- [Known limitations](#known-limitations)
+- [Authors](#authors)
+- [License](#license)
+
+---
+
+## Features
+
+- CRUD endpoints for:
+  - brands, categories
+  - shops
+  - products
+  - product prices
+  - product price history
+  - users and user roles
+- Simple login endpoint:
+  - `POST /api/auth/login`
+  - password stored as SHA256 hash (demo only, not production security).
+- Data endpoints aimed at ML / Grafana:
+  - flat product data with brand, category, shop, current price
+  - price history time series
+  - simple shop, brand and category statistics.
+- Centralised error handling:
+  - JSON errors with `statusCode`, `errorCode`, `message`, etc.
+- Dapper-based data access:
+  - clear SQL, easy to tune for queries and analytics.
+
+---
+
+## Tech stack
+
+- **Language:** C# 13 (via .NET 9)
+- **Web:** .NET 9 Minimal API
+- **Database:** MySQL (`price_runner` database)
+- **Data access:** Dapper + `MySqlConnector`
+- **Testing:** xUnit, dotnet test
+- **Config:** `appsettings.json` + environment variables
+
+---
+
+## Architecture overview
+
+The backend is split into three main layers:
+
+- **API layer (`src/API`)**
+  - Minimal APIs, routing and request/response models.
+  - Global exception filter (`ApiExceptionFilter`).
+  - OpenAPI/Swagger configuration.
+
+- **Application layer (`src/Application`)**
+  - DTOs, validation, Dapper-based services.
+  - All business logic that talks to the database.
+
+- **Infrastructure layer (`src/Infrastructure`)**
+  - Database options and connection factory.
+  - Migration script placeholders.
+
+A future **Crawler layer** exists under `src/Crawler`, but is intentionally
+not wired into the MVP yet.
+
+For more details, see **`ARCHITECTURE.md`**.
+
+---
+
+## Project structure (Not Updated Yet)
+
 Legend: 📁 Folder • 🧩 C#-Code • ⚙️ config/json/yaml • 🪪 .sln/.csproj • 🧾 Docs/Markdown • 🧪 Tests • 🐳 Docker/CI
 ```text
 📁 PriceRunnerClone
@@ -149,423 +238,150 @@ Legend: 📁 Folder • 🧩 C#-Code • ⚙️ config/json/yaml • 🪪 .sln/.
 
 ```
 
-```text
-Opgave 2: Pricerunner
-	C# Backend API
-	MS-SQL Database
-	Grafena SQL hjemmeside
-	React Frontend
-	Data API for DataManagement
+---
 
+## Getting started
+
+### 1. Prerequisites
+
+- .NET 9 SDK installed
+- MySQL server running locally (or in Docker)
+- A database called `price_runner`
+
+### 2. Create database schema
+
+The full schema is defined in the SQL Script:
+
+- tables: `user_roles`, `users`, `brands`, `categories`, `shops`,
+  `products`, `product_prices`, `products_history`
+- appropriate foreign keys between them.
+
+You can paste that script into your MySQL client and run it against the
+`price_runner` database.
+
+The files `src/Infrastructure/Migrations/001_create_schema.sql` and
+`002_seed_data.sql` are placeholders where this script and seed data can be
+stored later if you want to automate it.
+
+### 3. Configure connection string
+
+In development, you can either:
+
+1. Set it in `appsettings.Development.json`:
+
+```json
+"Database": {
+  "ConnectionString": "Server=localhost;Port=3306;Database=price_runner;User Id=...;Password=...;"
+}
 ```
 
----
+2. Or set an environment variable:
 
-## 2-ugers plan (10 arbejdsdage)
-
-Antag: du har ca. to uger med nogenlunde fulde dage. Målet er:
-**MVP færdig i slut uge 1**, uge 2 = polish + ekstra features + dokumentation + øve præsentation.
-
-### Dag 1 – Scope, domain & skeleton
-
-* Vælg præcist scope:
-
-  * Hvilke entiteter? (Product, Shop, Price, PriceHistory, User).
-  * Hvad skal frontend *helt sikkert* kunne? (Liste → detaljer → watchlist/kurv).
-* Lav overordnet **use cases-list**:
-
-  * “Se alle produkter”, “Se billigste pris”, “Admin opret produkt”, osv.
-* Opret:
-
-  * GitHub repo + basic README.
-  * `.sln` + backend Web API-projekt + React-frontend-projekt.
-* Læg lag-strukturen (mapper + tomme projekter / namespaces).
-
-*Milepæl*: Solution bygger, tomme /health-endpoint svarer.
-
----
-
-### Dag 2 – Database & Domain
-
-* Design **ER-diagram** for MS-SQL og læg det i `docs/ER-DIAGRAM.md`.
-* Opret `Domain`-entiteter:
-
-  * `Product`, `Shop`, `Price`, `PriceHistory`.
-* Opret `AppDbContext` + EF-konfigurationer.
-* Lav første migration og kør mod lokal SQL.
-* Lav `SeedData` med dummy produkter/shops/priser.
-
-*Milepæl*: DB oprettes, seede data findes, du kan køre `SELECT * FROM Products`.
-
----
-
-### Dag 3 – Application-lag & Repositories
-
-* Opret interface-baserede repos (`IProductRepository`, `IShopRepository`).
-* Implementer EF-baserede repos i `Infrastructure`.
-* Opret `ProductService` og `PriceService` i `Application`:
-
-  * GetAllProducts (inkl. billigste pris).
-  * GetProductDetail (inkl. alle shops + price history stub).
-* Start på unit tests for Domain (fx pris-beregninger / small business rules).
-
-*Milepæl*: Services kan kaldes fra integrationstest eller midlertidig console app.
-
----
-
-### Dag 4 – API design & første endpoints
-
-* Lav DTO’er & request models.
-* Implementer controllers:
-
-  * `GET /api/products`
-  * `GET /api/products/{id}`
-  * `POST /api/products` (admin)
-  * `PUT /api/products/{id}` (admin)
-* Tilføj:
-
-  * Swagger.
-  * Exception filter.
-  * Simple model validation.
-
-*Milepæl*: Du kan teste endpoints i Swagger/Postman med rigtig data.
-
----
-
-### Dag 5 – Frontend MVP (vertical slice)
-
-* Spin React/Vite op, lav:
-
-  * `ProductsPage` med tabel/grid over produkter.
-  * `ProductCard` med navn, billede, billigste pris.
-* Implementer `productsApi.ts` til at kalde API.
-* Simpel routing (React Router) mellem `/products` og `/products/:id`.
-* Lav `ProductDetailPage` der viser alle shops og highlight billigste.
-
-_Milepæl (uge 1 slut)**:**
-Fra browseren kan du:
-
-* Se produktliste (live fra DB gennem API).
-* Klikke på et produkt og se detaljer/priser.
-
----
-
-### Dag 6 – Watchlist/kurv + mere test
-
-* Implementer `CartContext` eller “watchlist”:
-
-  * Knappen “Add to watchlist”.
-  * `/cart` side der viser valgte produkter.
-* Beslut: gem watchlist lokalt (localStorage) eller i backend (MVP: lokalt).
-* Tilføj flere unit tests:
-
-  * `ProductService` og `PriceService` logik.
-* Start 1–2 integrationstests for API (happy-path GET/POST).
-
-*Milepæl*: Basic UX rundt i app’en føles nogenlunde komplet.
-
----
-
-### Dag 7 – Autentifikation + admin
-
-* Tilføj simple brugere:
-
-  * Fx “admin” med hardcodet seed eller in-memory.
-* Implementer JWT-baseret auth:
-
-  * `POST /auth/login` → bearer token.
-* Beskyt admin-endpoints (POST/PUT/DELETE på produkter/shops).
-* Frontend:
-
-  * `LoginPage` + `AuthContext`.
-  * Admin-side til CRUD på produkter (kald auth-beskyttet API).
-
-*Milepæl*: Kun admin kan oprette/ændre produkter; resten kun læse.
-
----
-
-### Dag 8 – Docker, Grafana & CI
-
-* Lav `Dockerfile.backend` og `Dockerfile.frontend`.
-* Lav `docker-compose.yml` med:
-
-  * `api`, `sqlserver`, `frontend`, evt. `grafana`.
-* Konfigurer Grafana til at læse fra SQL:
-
-  * Lav mindst ét dashboard med:
-
-    * Gennemsnitlig pris pr. shop.
-    * Antal produkter pr. kategori.
-* GitHub Actions workflow:
-
-  * `dotnet restore/build/test`.
-  * `npm install/test/build` for frontend.
-  * Evt. docker build (behøver ikke push).
-
-*Milepæl*: Med én kommando (`docker-compose up`) kører hele systemet lokalt.
-
----
-
-### Dag 9 – Dokumentation & UML
-
-* Udfyld `README.md`:
-
-  * Kort intro, teknologi-stack.
-  * Installationsvejledning (lokalt + Docker).
-  * Hvordan køre tests.
-* Udfyld `ARCHITECTURE.md`:
-
-  * Lagdiagram (Domain / Application / Infrastructure / Api / Frontend).
-  * Kort begrundelse for valg (SOLID, interfaces, EF Core, React).
-* Lav UML:
-
-  * Klassediagram for Domain (Product/Shop/Price).
-  * Sekvensdiagram for “User åbner ProductDetailPage”.
-
-*Milepæl*: Repo’et ligner noget, en ekstern rekrutterer kan forstå uden at kende projektet.
-
----
-
-### Dag 10 – Polishing, slides & ekstra features
-
-* Ryd op i:
-
-  * Døde klasser/filer.
-  * Navngivning, magic strings, kommentarer.
-* Forbered præsentation (15 min):
-
-  * 3–4 slides om arkitektur & designvalg.
-  * 1–2 slides om tests/CI/Docker.
-  * 1–2 slides demo-flow (hvad du viser live).
-* Hvis du har tid:
-
-  * Lidt mere test.
-  * Evt. begynde på crawler (se næste afsnit).
-
-*Milepæl*: Alt kører stabilt; du kan køre demo 2–3 gange uden overraskelser.
-
----
-
-## 3. Ekstra: Webcrawler til automatiske priser
-
-Det her er **perfekt som “stretch goal” / ekstra slide**.
-Du behøver ikke 120% færdig crawler – det er nok at vise en **klar arkitektur + en simpel implementation**, fx mod en dummy-shop.
-
-### Arkitektur-idé
-
-* Du har i forvejen:
-
-  * `Shop` entitet.
-  * `Product` + evt. `ExternalProductId` / `ShopProductUrl`.
-
-* Tilføj:
-
-  * Interface `IShopCrawler` i `Crawler/Providers`.
-  * Implementering `ExampleShopCrawler` der:
-
-    * Kender HTML-strukturen for “shoppen”.
-    * Henter HTML med `HttpClient`.
-    * Parser pris med fx HtmlAgilityPack (eller regex som MVP).
-  * `PriceCrawlerHostedService` (implementerer `IHostedService`), der:
-
-    * Kører fx hver time / ved opstart.
-    * Går alle Shops igennem og kalder deres crawler.
-    * Opdaterer `Price` og `PriceHistory` via `PriceService`.
-
-* Evt. endpoint:
-
-  * `POST /admin/crawler/runOnce` som admin kan klikke på i frontend:
-
-    * Trigger et “run crawl nu” uden at du skal lave kompleks scheduling.
-
-### Hvor i planen?
-
-* **Minimum**: design + skelet kan laves på **Dag 8–10**, når MVP er solid.
-* Start med *én* fake shop:
-
-  * Læg en lokal HTML-fil med kendt struktur.
-  * Lad crawleren hente fra `file://` eller en lille testserver.
-  * Så slipper du for at bøvle med rigtige websites / robots.txt osv.
-
----
-
-
-
-```mermaid
-flowchart LR
-    subgraph UserSide["User side"]
-        U["Browser / React frontend"]
-    end
-
-    subgraph Backend["Backend - .NET 9 API"]
-        AP["API layer\n(Controllers)"]
-        APP["Application layer\n(Services, DTOs, Mappers)"]
-        DOM["Domain layer\n(Entities,\nValue objects,\nInterfaces)"]
-        INF["Infrastructure layer\n(EF Core, Repositories)"]
-    end
-
-    subgraph DB["Database & monitoring"]
-        SQL["MS-SQL database"]
-        GRAF["Grafana\n(Dashboards)"]
-    end
-
-    subgraph Extra["Extra components"]
-        CRAWLER["Price crawler\n(IHostedService)"]
-        TESTS["Tests\n(Unit + Integration)"]
-    end
-
-    U -->|"HTTP (REST, JSON)"| AP
-    AP --> APP
-    APP --> DOM
-    APP --> INF
-    INF -->|"SQL queries"| SQL
-
-    CRAWLER --> APP
-    CRAWLER --> INF
-
-    SQL -->|"Data source"| GRAF
-
-    TESTS --> AP
-    TESTS --> APP
-    TESTS --> DOM
-
+```bash
+export MYSQL_CONNECTION_STRING="Server=localhost;Port=3306;Database=price_runner;User Id=...;Password=...;"
 ```
 
-```mermaid
-flowchart TB
-    subgraph API["API Layer"]
-        CTRL["Controllers\n(Products, Shops, Prices, Auth)"]
-        FILT["Exception filters\n+ Validation"]
-    end
+The infrastructure layer (`AddInfrastructure`) will pick up the connection
+string from configuration or `MYSQL_CONNECTION_STRING`.
 
-    subgraph APP["Application Layer"]
-        SRV["Services\n(ProductService, PriceService, AuthService)"]
-        DTO["DTOs\n(ProductDto, ProductDetailDto, ShopDto)"]
-        MAP["Mappers\n(ProductMapper)"]
-        VAL["Validation\n(ProductValidator)"]
-    end
+### 4. Run the API
 
-    subgraph DOM["Domain Layer"]
-        ENT["Entities\n(Product, Shop, Price, PriceHistory, User)"]
-        VO["Value objects\n(Money, ProductId)"]
-        INTF["Interfaces\n(IProductRepository,\n IShopRepository,\n IPriceService)"]
-    end
+From the repository root:
 
-    subgraph INF["Infrastructure Layer"]
-        DBCTX["AppDbContext\n(EF Core)"]
-        REPO["Repositories\n(ProductRepository,\n ShopRepository)"]
-        MIG["Migrations"]
-        SEED["SeedData"]
-    end
-
-    CTRL --> SRV
-    SRV --> DTO
-    SRV --> MAP
-    SRV --> INTF
-    INTF --> REPO
-    REPO --> DBCTX
-    DBCTX --> MIG
-    SEED --> DBCTX
-
+```bash
+dotnet run --project PriceRunnerClone.csproj
 ```
 
-```mermaid
-classDiagram
-    class Product {
-        Guid Id
-        string Name
-        string Brand
-        string Category
-        string ImageUrl
-        ICollection~Price~ Prices
-        ICollection~PriceHistory~ PriceHistories
-    }
+Local URLs (from `launchSettings.json`):
 
-    class Shop {
-        Guid Id
-        string Name
-        string WebsiteUrl
-        ICollection~Price~ Prices
-        ICollection~PriceHistory~ PriceHistories
-    }
+- HTTP:  `http://localhost:5282`
+- HTTPS: `https://localhost:7103`
 
-    class Price {
-        Guid Id
-        decimal CurrentPrice
-        DateTime LastUpdated
-        Guid ProductId
-        Guid ShopId
-    }
+Swagger UI is enabled in `Development` and can be reached at:
 
-    class PriceHistory {
-        Guid Id
-        decimal Price
-        DateTime RecordedAt
-        Guid ProductId
-        Guid ShopId
-    }
+- `https://localhost:7103/swagger`
+- or `http://localhost:5282/swagger`
 
-    class User {
-        Guid Id
-        string Username
-        string PasswordHash
-        string Role  // "Admin" / "User"
-    }
+---
 
-    Product "1" --> "many" Price : has
-    Shop "1" --> "many" Price : offers
+## API overview
 
-    Product "1" --> "many" PriceHistory : has
-    Shop "1" --> "many" PriceHistory : offers
+The most important route groups are:
 
-    User "1" --> "many" Product : can_watch (f.eks. watchlist)
+- `POST /api/auth/login`
+- `GET/POST/PUT/DELETE /api/products`
+- `GET /api/products/{id}/prices`
+- `GET /api/products/{id}/cheapest`
+- `GET /api/products/{id}/history`
+- `GET/POST/PUT/DELETE /api/shops`
+- `GET /api/shops/{id}/products`
+- `GET /api/shops/{id}/prices`
+- `GET/POST/PUT/DELETE /api/brands`
+- `GET/POST/PUT/DELETE /api/categories`
+- `GET/POST/PUT/DELETE /api/product-prices`
+- `GET/POST/PUT/DELETE /api/product-price-history`
+- `GET/POST/PUT/DELETE /api/users`
+- `GET/POST/PUT/DELETE /api/user-roles`
+
+Data/analytics endpoints:
+
+- `GET /api/data/products-flat`
+- `GET /api/data/price-history`
+- `GET /api/data/shop-stats`
+- `GET /api/data/brand-stats`
+- `GET /api/data/category-stats`
+
+For diagrams, see **`API-DIAGRAM.md`**.
+
+---
+
+## Testing
+
+### Run tests locally
+
+```bash
+dotnet test PriceRunner.Application.Tests/PriceRunner.Application.Tests.csproj   --configuration Release
 ```
 
-```mermaid
-sequenceDiagram
-    actor User
-    participant FE as React Frontend
-    participant API as ProductsController
-    participant APP as ProductService
-    participant REPO as ProductRepository
-    participant DB as MS-SQL
+or on Windows PowerShell:
 
-    User->>FE: Navigate to /products/{id}
-    FE->>API: HTTP GET /api/products/{id}
-    API->>APP: GetProductDetail(id)
-    APP->>REPO: GetByIdWithPrices(id)
-    REPO->>DB: SELECT Product + Prices + Shops
-    DB-->>REPO: Data rows
-    REPO-->>APP: Product entity (+ related)
-    APP->>APP: Map entity -> ProductDetailDto
-    APP-->>API: ProductDetailDto
-    API-->>FE: 200 OK + JSON
-    FE->>FE: Render product detail page (min pris, alle shops, knap "Add to watchlist")
+```powershell
+dotnet test PriceRunner.Application.Tests/PriceRunner.Application.Tests.csproj `
+  --configuration Release
 ```
 
-```mermaid
-flowchart LR
-    subgraph Host["Docker Host"]
-        subgraph FrontendContainer["frontend-container"]
-            FE["React App\n(nginx or dev server)"]
-        end
+### Run full pipeline script
 
-        subgraph ApiContainer["api-container"]
-            API[".NET 9 Web API"]
-        end
-
-        subgraph DbContainer["db-container"]
-            SQL["MS-SQL Server"]
-        end
-
-        subgraph GrafanaContainer["grafana-container"]
-            GRAF["Grafana dashboards"]
-        end
-    end
-
-    UserBrowser["User browser"] -->|"HTTP :80/443"| FE
-    FE -->|"HTTP /api/..."| API
-    API -->|"TCP 1433"| SQL
-    GRAF -->|"SQL queries"| SQL
-
+```powershell
+.\PriceRunner.Application.Tests\scripts\RunAllTests.ps1
 ```
+
+See **`TEST-STRATEGY.md`** for details about what is currently covered and
+suggestions for future tests.
+
+---
+
+## Known limitations
+
+- No real authentication or authorisation:
+  - passwords use SHA256 without salt
+  - no JWT, roles are not enforced on endpoints.
+- No automated migrations:
+  - database schema is created manually via SQL script.
+- Crawler layer is a placeholder:
+  - `PriceCrawlerService` and related classes are not yet implemented.
+- No frontend in this repository:
+  - API is ready to be consumed by a React app, but that project is not ready yet.
+
+---
+
+## Authors
+
+- **Nikolaj Østergaard Rasmussen** – [github.com/NikolajOR](https://github.com/NikolajOR)
+- **John Grandt Markvard Høeg** – [github.com/saphyron](https://github.com/saphyron)
+
+---
+
+## License
+
+The project is intended to be released under the **MIT License**.

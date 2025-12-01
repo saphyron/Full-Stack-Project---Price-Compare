@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-test-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      # 1) Byg projektet
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      # 2) Kør unit tests (Application tests)
+      - name: Run unit tests
+        run: dotnet test tests/PriceRunner.Application.Tests/PriceRunner.Application.Tests.csproj --configuration Release --no-build
+
+      # 3) Kør pipeline-test script (smoketest/orkestrering)
+      - name: Run pipeline tests script
+        shell: pwsh
+        run: ./tests/scripts/RunAllTests.ps1
