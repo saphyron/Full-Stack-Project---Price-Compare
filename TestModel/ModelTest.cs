@@ -9,7 +9,7 @@
            var prices = new PricesPredict();
 
            // Act & Assert
-           Assert.Throws<Exception>(() => prices.GetPrediction("price_data", 11));
+           Assert.Throws<Exception>(() => prices.GetPredictions("price_data", 11));
         }
 
         [Fact]
@@ -19,7 +19,7 @@
             var prices = new PricesPredict();
 
             // Act
-            var predictions = prices.GetPrediction("price_data", 5);
+            var predictions = prices.GetPredictions("price_data", 5);
 
             // Assert
             Assert.Equal(5,predictions.forcastedprices.Count);
@@ -32,7 +32,7 @@
             var prices = new PricesPredict();
 
             // Act & Assert
-            Assert.Throws<Exception>(() => prices.GetPrediction("Fil_eksister_ikke", 5));
+            Assert.Throws<Exception>(() => prices.GetPredictions("Fil_eksister_ikke", 5));
         }
     }
 }

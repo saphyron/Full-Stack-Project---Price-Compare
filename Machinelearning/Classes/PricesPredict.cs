@@ -12,7 +12,7 @@ public class PricesPredict
     }
 
     public (List<float> forcastedprices,List<float> lowboundprices,List<float> upperboundprices) 
-        GetPrediction(string product,int predictions)
+        GetPredictions(string product,int predictions)
     {
         if(predictions > _maxPreditions)
             throw new Exception("Give max 10 forudsigelser");
@@ -31,7 +31,7 @@ public class PricesPredict
          forecast?.UpperBoundPrice?.Take(predictions).ToList() ?? new List<float>());
     }
 
-    public void RetrainModel(string product = "",List<float>? prics = null)
+    public void TrainModel(string product = "",List<float>? prics = null)
     {
         int testDataAmount;
         List<PriceData>? data;
@@ -49,6 +49,9 @@ public class PricesPredict
         }
         else
         {
+            if(ProductModelExists(product))
+                return;
+
             data = CreatePriceDataList(prics);
             testDataAmount = (int)(prics?.Count * 0.10 ?? 0);
         }
@@ -86,6 +89,20 @@ public class PricesPredict
         => prices == null ? new List<PriceData>() : 
         [.. prices.Select(x => new PriceData{Price = x})];
 
+    private static bool ProductModelExists(string product)
+    {
+       try
+       {
+        GetProductPath(product);
+       }
+       catch (Exception)
+        {
+            return false;
+        } 
+
+        return true;
+    }
+
     private static string GetProductPath(string product = "", bool create = false, string filetype = "zip", [CallerFilePath] string currentFile = "")
     {
         product = product == "" ? 
@@ -101,6 +118,7 @@ public class PricesPredict
         
         return fullpath;
     }
+
 
     private static void PrintAccuacy(float[] testData, SsaForecastingTransformer model)
     {

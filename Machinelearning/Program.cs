@@ -1,6 +1,6 @@
 ﻿var pricespredict = new PricesPredict();
-pricespredict.RetrainModel();
-var nums = pricespredict.GetPrediction("price_data",5);
+pricespredict.TrainModel();
+var nums = pricespredict.GetPredictions("price_data",5);
 
 for (int i = 0; i < nums.forcastedprices.Count; i++)
 {
