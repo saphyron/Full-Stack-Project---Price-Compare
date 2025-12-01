@@ -65,8 +65,8 @@ public class PricesPredict
         var pipeline = _mlContext.Forecasting.ForecastBySsa(
             outputColumnName: nameof(PriceForecast.ForecastedPrice),
             inputColumnName: nameof(PriceData.Price),
-            windowSize: 15,       // antal tidligere punkter at kigge på
-            seriesLength: 30,    // længde af serien
+            windowSize: (int)(trainData.Count * 0.15),       // antal tidligere punkter at kigge på
+            seriesLength: (int)(trainData.Count * 0.30),    // længde af serien
             trainSize: trainData.Count,
             horizon: _maxPreditions, // hvor mange fremtidige punkter du vil forudsige
             confidenceLevel: 0.95f,
@@ -92,7 +92,8 @@ public class PricesPredict
             "price_data" : 
             product;
 
-        var projectRoot = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(currentFile), @"..\"));
+        var directory = Path.GetDirectoryName(currentFile) ?? string.Empty;
+        var projectRoot = Path.GetFullPath(Path.Combine(directory, @"..\"));
         var fullpath = Path.Combine(projectRoot, "Models", $"{product}.{filetype}");
 
         if (!File.Exists(fullpath) && !create)
@@ -101,7 +102,7 @@ public class PricesPredict
         return fullpath;
     }
 
-    private static void PrintAccuacy(float[]? testData, SsaForecastingTransformer model)
+    private static void PrintAccuacy(float[] testData, SsaForecastingTransformer model)
     {
         // Lav forudsigelse
         var forecastEngine = model.CreateTimeSeriesEngine<PriceData, PriceForecast>(_mlContext);
@@ -111,9 +112,9 @@ public class PricesPredict
         for (int i = 0; i < testData.Length; i++)
         {
             float actual = testData[i];
-            float predicted = forecast.ForecastedPrice[i];
-            float lower = forecast.LowerBoundPrice[i];
-            float upper = forecast.UpperBoundPrice[i];
+            float predicted = forecast?.ForecastedPrice?[i] ?? 0f;
+            float lower = forecast?.LowerBoundPrice?[i] ?? 0f;
+            float upper = forecast?.UpperBoundPrice?[i] ?? 0f;
             float procent = lower / upper;
             Console.WriteLine($"t+{i + 1}: actual={actual:0.00}, predicted={predicted:0.00} (CI: {lower:0.00} - {upper:0.00}) procent: {procent:0.00}");
         }
