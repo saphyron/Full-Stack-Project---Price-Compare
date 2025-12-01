@@ -26,23 +26,19 @@ public class PricesPredict
         var forecast = loadedEngine.Predict();
 
         return 
-        (forecast?.ForecastedPrice?.Take(predictions).ToList(),
-         forecast?.LowerBoundPrice?.Take(predictions).ToList(),
-         forecast?.UpperBoundPrice?.Take(predictions).ToList());
-
-        //return new PriceForecast()
-        //{
-            //ForecastedPrice = forecast?.ForecastedPrice ? .Take(predictions).ToArray(),
-            //LowerBoundPrice = forecast?.LowerBoundPrice ? .Take(predictions).ToArray(),
-            //UpperBoundPrice = forecast?.UpperBoundPrice ? .Take(predictions).ToArray()
-        //};
+        (forecast?.ForecastedPrice?.Take(predictions).ToList() ?? new List<float>(),
+         forecast?.LowerBoundPrice?.Take(predictions).ToList() ?? new List<float>(),
+         forecast?.UpperBoundPrice?.Take(predictions).ToList() ?? new List<float>());
     }
 
     public void RetrainModel(string product = "",List<float>? prics = null)
     {
+        int testDataAmount;
         List<PriceData>? data;
+
         if(prics == null || prics?.Count == 0)
         {
+            testDataAmount = 10;
             var allDataView = _mlContext.Data.LoadFromTextFile<PriceData>(
                     path: GetProductPath(filetype:"csv", create:true),
                     hasHeader: true,
@@ -54,13 +50,14 @@ public class PricesPredict
         else
         {
             data = CreatePriceDataList(prics);
+            testDataAmount = (int)(prics?.Count * 0.10 ?? 0);
         }
 
-        var testDataAmount = 10;
+        var trainDataAmount = data.Count - testDataAmount;
 
-        var trainData = data.Take(data.Count - testDataAmount).ToList();
+        var trainData = data.Take(trainDataAmount).ToList();
 
-        var testData = data.Skip(data.Count - testDataAmount).Select(x => x.Price).ToArray();
+        var testData = data.Skip(trainDataAmount).Select(x => x.Price).ToArray();
 
         var dataView = _mlContext.Data.LoadFromEnumerable(trainData);
 
@@ -95,7 +92,7 @@ public class PricesPredict
             "price_data" : 
             product;
 
-        string projectRoot = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(currentFile), @"..\"));
+        var projectRoot = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(currentFile), @"..\"));
         var fullpath = Path.Combine(projectRoot, "Models", $"{product}.{filetype}");
 
         if (!File.Exists(fullpath) && !create)
