@@ -1,7 +1,7 @@
 
 using Microsoft.ML.Data;
-public class PriceData
+internal class PriceData
 {
     [LoadColumn(0)]
-    public float Price { get; set; }
+    internal float Price { get; set; }
 }

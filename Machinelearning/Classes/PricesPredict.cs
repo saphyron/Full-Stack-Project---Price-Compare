@@ -4,8 +4,8 @@ using System.Runtime.CompilerServices;
 public class PricesPredict
 {
     private const int _maxPreditions = 10;
-    private static MLContext _mlContext = new MLContext();
-    private static bool _test;
+    private MLContext _mlContext = new MLContext();
+    private bool _test;
     public PricesPredict(bool test = false)
     {
         _test = test;
@@ -85,11 +85,11 @@ public class PricesPredict
         _mlContext.Model.Save(model,dataView.Schema,GetProductPath(product,true));
     }
 
-    private static List<PriceData> CreatePriceDataList(List<float>? prices) 
+    private List<PriceData> CreatePriceDataList(List<float>? prices) 
         => prices == null ? new List<PriceData>() : 
         [.. prices.Select(x => new PriceData{Price = x})];
 
-    private static bool ProductModelExists(string product)
+    private bool ProductModelExists(string product)
     {
        try
        {
@@ -103,7 +103,7 @@ public class PricesPredict
         return true;
     }
 
-    private static string GetProductPath(string product = "", bool create = false, string filetype = "zip", [CallerFilePath] string currentFile = "")
+    private string GetProductPath(string product = "", bool create = false, string filetype = "zip", [CallerFilePath] string currentFile = "")
     {
         product = product == "" ? 
             "price_data" : 
@@ -120,7 +120,7 @@ public class PricesPredict
     }
 
 
-    private static void PrintAccuacy(float[] testData, SsaForecastingTransformer model)
+    private void PrintAccuacy(float[] testData, SsaForecastingTransformer model)
     {
         // Lav forudsigelse
         var forecastEngine = model.CreateTimeSeriesEngine<PriceData, PriceForecast>(_mlContext);
