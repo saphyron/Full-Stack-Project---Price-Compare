@@ -33,10 +33,11 @@ public class PricesPredict
 
     public void TrainModel(string product = "",List<float>? prics = null)
     {
+        prics ??= [];
         int testDataAmount;
         List<PriceData>? data;
 
-        if(prics == null || prics?.Count == 0)
+        if(prics.Count == 0)
         {
             testDataAmount = 10;
             var allDataView = _mlContext.Data.LoadFromTextFile<PriceData>(
