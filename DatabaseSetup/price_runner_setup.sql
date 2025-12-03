@@ -39,7 +39,7 @@ CREATE TABLE shops (
   shop_id int NOT NULL AUTO_INCREMENT,
   full_name varchar(255) NOT NULL,
   shop_url text,
-  PRIMARY KEY (shop_id),
+  PRIMARY KEY (shop_id)
 );
 
 DROP TABLE IF EXISTS products;
@@ -54,7 +54,7 @@ CREATE TABLE products (
   KEY shop_id (shop_id),
   KEY brand_id (brand_id),
   KEY category_id (category_id),
-  CONSTRAINT shop_conp FOREIGN KEY (shop_id) REFERENCES shops (shop_id)
+  CONSTRAINT shop_conp FOREIGN KEY (shop_id) REFERENCES shops (shop_id),
   CONSTRAINT brand_cons FOREIGN KEY (brand_id) REFERENCES brands (brand_id),
   CONSTRAINT category_cons FOREIGN KEY (category_id) REFERENCES categories (category_id)
 );
